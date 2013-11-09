@@ -6,14 +6,15 @@ This SIG Maintainability Model implementation is based on a paper from: Ilja Hei
 This implementation is written in Rascal, see: http://www.rascal-mpl.org
 
 To Summarize how the model:
-# It relates software quality model defined by ISO 9126 standard with the source code properties
-# It calculate the following metrics:
+
+1. It relates software quality model defined by ISO 9126 standard with the source code properties
+2. It calculate the following metrics:
   * Volume
   * Complexity per unit
   * Duplication
   * Unit size
   * Unit testing
-# See image below to see the relation between ISO 9126 model with SIG maintainability model, taken from the papermentioned above.
+3. See image below to see the relation between ISO 9126 model with SIG maintainability model, taken from the papermentioned above.
 ![SIG Maintainability Model](misc/img/sigmm.png)
 
 
