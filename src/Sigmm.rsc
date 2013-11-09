@@ -11,10 +11,11 @@ import metric::Duplication;
 import metric::UnitSize;
 import metric::UnitTestingSize;
 
-int main() {
+str analyzeMaintainability() {
 	loc project = |project://SimpleJavaProject/|;
 	M3 model = createM3FromEclipseProject(project);
 	set[Declaration] ast = createAstsFromEclipseProject(project, true);
 	
-	return volume(model) + unitTestingSize(model);
+	// TODO separate rating per category (e.g. analyzeability)
+	return volumeRating(model) + unitTestingSize(model);
 }

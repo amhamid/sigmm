@@ -6,5 +6,9 @@ import lang::java::jdt::m3::AST;
 import IO;
 
 list[int] unitSize(M3 model) {
-	return [(m[1].end.line-m[1].begin.line) - (n[1].end.line-n[1].begin.line) | m <- model@declarations, n <- model@documentation, isMethod(m[0]) && m[1].begin.line == n[1].begin.line];
+	return [(declr[1].end.line-declr[1].begin.line) - (doc[1].end.line-doc[1].begin.line) | declr <- model@declarations, doc <- model@documentation, isMethod(declr[0]) && declr[1].begin.line == doc[1].begin.line];
+}
+
+int unitSize(M3 model, loc methodSrc) {
+	return (0 | it + (methodSrc.end.line-methodSrc.begin.line) - (doc[1].end.line-doc[1].begin.line) | doc <- model@documentation, methodSrc.begin.line == doc[1].begin.line);
 }
