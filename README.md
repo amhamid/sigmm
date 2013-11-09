@@ -15,7 +15,7 @@ To Summarize how the model:
   * Duplication
   * Unit size
   * Unit testing
-3. See image below to see the relation between ISO 9126 model with SIG maintainability model, taken from the papermentioned above.
+3. See image below to see the relation between ISO 9126 model with SIG maintainability model, taken from the paper mentioned above.
 
 ![SIG Maintainability Model](misc/img/sigmm.png)
 
