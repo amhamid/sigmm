@@ -5,14 +5,16 @@ import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import IO;
+import Number;
 
 import metric::UnitSize;
 import metric::Volume;
 
+// calculate cyclomatic complexity rating
 str cyclomaticComplexityRating(M3 model) {
 	result = "";
 
-	int totalLoc = volume(model);
+	int totalLoc = countTotalLoc(model);
 	list[tuple[int,int]] complexityUnits = cyclomaticComplexityPerUnit(model);
 	
 	// filtering the risk into moderate, high and very high risk
@@ -26,9 +28,9 @@ str cyclomaticComplexityRating(M3 model) {
 	int veryHighRiskTotalLoc = (0 | it + y | <x,y> <- veryHighRisk);
 
 	// calculating percentage of the risks
-	int moderateRiskPercentage = moderateRiskTotalLoc/totalLoc * 100;
-	int highRiskPercentage = highRiskTotalLoc/totalLoc * 100;
-	int veryHighRiskPercentage = veryHighRiskTotalLoc/totalLoc * 100;
+	real moderateRiskPercentage = toReal(moderateRiskTotalLoc)/totalLoc * 100;
+	real highRiskPercentage = toReal(highRiskTotalLoc)/totalLoc * 100;
+	real veryHighRiskPercentage = toReal(veryHighRiskTotalLoc)/totalLoc * 100;
 	
 	return getRating(moderateRiskPercentage, highRiskPercentage, veryHighRiskPercentage);
 }
@@ -60,10 +62,10 @@ list[tuple[int, int]] cyclomaticComplexityPerUnit(M3 model) {
 		complexityUnits += <result, methodLoc>;		
 	}
 	
-	return [<x, y> | <x,y> <- complexityUnits, x > 10];;
+	return [<x, y> | <x,y> <- complexityUnits];;
 }
 
-private str getRating(int moderateRiskPercentage, int highRiskPercentage, int veryHighRiskPercentage) {
+str getRating(real moderateRiskPercentage, real highRiskPercentage, real veryHighRiskPercentage) {
 	str result = "";
 		
 	if(moderateRiskPercentage <= 25 && highRiskPercentage == 0 && veryHighRiskPercentage == 0) {

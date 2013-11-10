@@ -5,6 +5,7 @@ import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import IO;
 
+// calculate volume rating (excluding comments and empty lines)
 str volumeRating(M3 model) = 
 	getRating(volume(model));
 
