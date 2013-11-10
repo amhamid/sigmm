@@ -10,7 +10,7 @@ import analysis::UnitSize;
 import analysis::UnitTestingSize;
 import util::OverallRating;
 
-void analyzeMaintainability(loc project) {
+void analyseMaintainability(loc project) {
 	M3 model = createM3FromEclipseProject(project);
 	
 	str volumeRating = volumeRating(model);
