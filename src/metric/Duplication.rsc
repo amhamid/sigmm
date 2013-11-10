@@ -6,4 +6,4 @@ import lang::java::jdt::m3::AST;
 import IO;
 
 // TODO define how to find duplication
-int duplication(M3 model) = 0;
+str duplicationRating(M3 model) = "o";

@@ -1,5 +1,6 @@
 module util::Rating
 
+// calculate total rating, e.g. ("++", "--", "+") --> "+"
 str getTotalRating(list[str] ratings) =
 	intToRating((0 | it + ratingToInt(rating) | rating <- ratings));
 

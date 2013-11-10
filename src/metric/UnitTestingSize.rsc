@@ -5,8 +5,15 @@ import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import IO;
 
+str unitTestingSizeRating(M3 model) {
+	// TODO
+	return "o";
+}
+
+// calculate total unit testing size (assert statement)
 int unitTestingSize(set[Declaration] ast) {
 	result = 0;
+	
 	visit(ast) {
 		case m:method(_,_,_,_,s) : visit(s) {
 			case \assert(_) : result += 1;
@@ -16,4 +23,3 @@ int unitTestingSize(set[Declaration] ast) {
 	
 	return result;
 }
-		

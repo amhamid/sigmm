@@ -12,32 +12,35 @@ import metric::Volume;
 str cyclomaticComplexityRating(M3 model) {
 	result = "";
 
-	list[tuple[int,int]] complexityUnits = cyclomaticComplexity(model);
+	int totalLoc = volume(model);
+	list[tuple[int,int]] complexityUnits = cyclomaticComplexityPerUnit(model);
+	
+	// filtering the risk into moderate, high and very high risk
 	list[tuple[int,int]] moderateRisk = [<x, y> | <x,y> <- complexityUnits, x > 10, x <= 20];
 	list[tuple[int,int]] highRisk = [<x, y> | <x,y> <- complexityUnits, x > 20, x <= 50];
 	list[tuple[int,int]] veryHighRisk = [<x, y> | <x,y> <- complexityUnits, x > 50];
 	
-	int moderateRiskLoc = (0 | it + y | <x,y> <- moderateRisk); 
-	int highRiskLoc = (0 | it + y | <x,y> <- highRisk);
-	int veryHighRiskLoc = (0 | it + y | <x,y> <- veryHighRisk);
-	
-	int vol = volume(model);
+	// calculating total line of code per risk
+	int moderateRiskTotalLoc = (0 | it + y | <x,y> <- moderateRisk); 
+	int highRiskTotalLoc = (0 | it + y | <x,y> <- highRisk);
+	int veryHighRiskTotalLoc = (0 | it + y | <x,y> <- veryHighRisk);
 
-	// methodRiskLoc = <moderateRiskLoc, highRiskLoc, veryHighRiskLoc>	
-	int moderateRiskPercentage = moderateRiskLoc/vol * 100;
-	int highRiskPercentage = highRiskLoc/vol * 100;
-	int veryHighRiskPercentage = veryHighRiskLoc/vol * 100;
+	// calculating percentage of the risks
+	int moderateRiskPercentage = moderateRiskTotalLoc/totalLoc * 100;
+	int highRiskPercentage = highRiskTotalLoc/totalLoc * 100;
+	int veryHighRiskPercentage = veryHighRiskTotalLoc/totalLoc * 100;
 	
-	return getRating(<moderateRiskPercentage, highRiskPercentage, veryHighRiskPercentage>);
+	return getRating(moderateRiskPercentage, highRiskPercentage, veryHighRiskPercentage);
 }
 
-// list complexity, nr of line
-list[tuple[int, int]] cyclomaticComplexity(M3 model) {
+// calculate complexity per method and return a list of tuple with information <complexity, number of loc>
+list[tuple[int, int]] cyclomaticComplexityPerUnit(M3 model) {
 	list[Declaration] asts = [getMethodASTEclipse(method) | method <- methods(model)];
 	list[tuple[int, int]] complexityUnits = []; 
 	 
 	for(ast <- asts) {
 		int result = 1;
+		
 		visit(ast) {
 			case m:method(_,_,_,_,s) : visit(s) {
 			  	case do(_,_) : result += 1;
@@ -52,6 +55,7 @@ list[tuple[int, int]] cyclomaticComplexity(M3 model) {
 				case \catch(_,_) : result += 1;			
 			}
 		}
+		
 		methodLoc = unitSize(model, ast@src);
 		complexityUnits += <result, methodLoc>;		
 	}
@@ -59,13 +63,8 @@ list[tuple[int, int]] cyclomaticComplexity(M3 model) {
 	return [<x, y> | <x,y> <- complexityUnits, x > 10];;
 }
 
-private str getRating(tuple[int,int,int] methodRiskPercentage) {
+private str getRating(int moderateRiskPercentage, int highRiskPercentage, int veryHighRiskPercentage) {
 	str result = "";
-		
-	// methodRiskPercentage = <moderateRiskPercentage, highRiskPercentage, veryHighRiskPercentage>	
-	int moderateRiskPercentage = methodRiskPercentage[0];
-	int highRiskPercentage = methodRiskPercentage[1];
-	int veryHighRiskPercentage = methodRiskPercentage[2];
 		
 	if(moderateRiskPercentage <= 25 && highRiskPercentage == 0 && veryHighRiskPercentage == 0) {
 		result = "++";

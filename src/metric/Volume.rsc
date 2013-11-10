@@ -5,19 +5,24 @@ import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import IO;
 
-str volumeRating(M3 model) = getRating(volume(model));
+str volumeRating(M3 model) = 
+	getRating(volume(model));
 
+// calculate production code volume (excluding comments and empty lines)
 int volume(M3 model) =
-	(0 | it + (countTotalLoc(model, file) - countTotalCommentedLoc(model, file) - countTotalEmptyLoc(model, file)) | file <- files(model));
+	countTotalLoc(model) - countTotalCommentedLoc(model) - countTotalEmptyLoc(model);
 
-private int countTotalLoc(M3 model, loc compilationUnit) 
-	= src.end.line when {src} := model@declarations[compilationUnit];	
+// calculate total line of code
+int countTotalLoc(M3 model) 
+	= (0 | it + src.end.line | compilationUnit <- files(model), {src} := model@declarations[compilationUnit]);  	
 
-private int countTotalCommentedLoc(M3 model, loc compilationUnit) 
-	= (0 | it + (doc.end.line - doc.begin.line + 1) | doc <- model@documentation[compilationUnit]); 
+// calculate total line of commented code (including javadocs)
+int countTotalCommentedLoc(M3 model) 
+	= (0 | it + (doc.end.line - doc.begin.line + 1) | compilationUnit <- files(model), doc <- model@documentation[compilationUnit]); 
 
-private int countTotalEmptyLoc(M3 model, loc compilationUnit) 
-	= (0 | it + 1 | loc doc <- model@declarations[compilationUnit], /^\s*$/ <- readFileLines(doc));
+// calculate total of empty lines
+int countTotalEmptyLoc(M3 model) 
+	= (0 | it + 1 | compilationUnit <- files(model), doc <- model@declarations[compilationUnit], /^\s*$/ <- readFileLines(doc));
 
 private str getRating(int volume) {
 	int kloc = volume / 1000;
