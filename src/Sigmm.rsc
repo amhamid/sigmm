@@ -1,21 +1,18 @@
 module Sigmm
 
-import analysis::m3::Core;
 import lang::java::jdt::m3::Core;
-import lang::java::jdt::m3::AST;
 import IO;
 
-import metric::Volume;
-import metric::CyclomaticComplexity;
-import metric::Duplication;
-import metric::UnitSize;
-import metric::UnitTestingSize;
-import util::Rating;
+import analysis::Volume;
+import analysis::CyclomaticComplexity;
+import analysis::Duplication;
+import analysis::UnitSize;
+import analysis::UnitTestingSize;
+import util::OverallRating;
 
 void analyzeMaintainability(loc project) {
 	M3 model = createM3FromEclipseProject(project);
 	
-	// TODO separate rating per category (e.g. analyzeability)
 	str volumeRating = volumeRating(model);
 	str cyclomaticComplexityRating = cyclomaticComplexityRating(model);
 	str duplicationRating = duplicationRating(model);

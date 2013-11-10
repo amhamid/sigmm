@@ -1,9 +1,9 @@
-module metric::Duplication
+module analysis::Duplication
 
-import analysis::m3::Core;
 import lang::java::jdt::m3::Core;
-import lang::java::jdt::m3::AST;
 import IO;
+
+import extract::Duplication;
 
 // TODO define how to find duplication
 str duplicationRating(M3 model) = "o";

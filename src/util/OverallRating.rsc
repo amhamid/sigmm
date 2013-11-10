@@ -1,4 +1,4 @@
-module util::Rating
+module util::OverallRating
 
 // calculate total rating, e.g. ("++", "--", "+") --> "+"
 str getTotalRating(list[str] ratings) =
