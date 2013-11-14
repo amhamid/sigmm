@@ -24,7 +24,6 @@ list[tuple[int, int]] cyclomaticComplexityPerUnit(M3 model) {
 				case \if(_,_) : result += 1;
 				case \if(_,_,_) : result += 1;
 				case \case(_) : result += 1;	
-				case defaultCase() : result += 1;
 				case \while(_,_) : result += 1;
 				case \catch(_,_) : result += 1;			
 			}
