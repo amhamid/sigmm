@@ -53,7 +53,7 @@ private int countDuplicationPerMethod(Declaration ast, list[Declaration] theRest
 	return (0 | it + size(xs) | xs <- duplicateLinesPerMethod); 
 }
 
-// sanitize lines from tab char, '{' and '}' 
+// sanitize lines from '\t', '{' and '}' chars 
 private list[str] sanitizeLines(list[str] lines) {
 	list[str] result = [];
 	str tmp;
