@@ -5,6 +5,7 @@ import lang::java::jdt::m3::AST;
 
 import IO;
 import List;
+import Set;
 import String;
 
 int countTotalDuplication(M3 model) {
@@ -24,12 +25,12 @@ int countTotalDuplication(M3 model) {
 }
 
 private int countDuplicationPerMethod(Declaration ast, list[Declaration] theRestOfAsts) {
-	list[str] astLines = sanitizeLines(readFileLines(ast@src));
-	list[list[str]] duplicateLinesPerMethod = [];
+	list[str] astLines = sanitizeLine(readFileLines(ast@src), ["\t"]);
+	list[str] duplicateLines = [];
 
 	for(otherAst <- theRestOfAsts) {
 		list[str] tmp = [];
-		list[str] otherAstLines = sanitizeLines(readFileLines(otherAst@src));
+		list[str] otherAstLines = sanitizeLine(readFileLines(otherAst@src), ["\t", "{", "}"]);
 		
 		// iterate over non-empty astLines	
 		for(astLine <- astLines, !isEmpty(astLine)) {
@@ -37,30 +38,29 @@ private int countDuplicationPerMethod(Declaration ast, list[Declaration] theRest
 				tmp += astLine;	
 			} else {
 				// count as duplicate if size is > 5 
-				if(size(tmp) > 5) {
-					duplicateLinesPerMethod += [tmp];	
+				if(size(tmp) > 5 && [*_, tmp, *_] := otherAstLines) {
+					duplicateLines += tmp;	
+					iprintln(tmp);
 					tmp = [];			
 				} else {
 					tmp = [];
 				}
 			}		
 		}
-
-		// it will be useful only when two methods are completely identical (otherwise [] will be added)
-		duplicateLinesPerMethod += [tmp];
 	}
 	
-	return (0 | it + size(xs) | xs <- duplicateLinesPerMethod); 
+	return size(duplicateLines); 
 }
 
-// sanitize lines from '\t', '{' and '}' chars 
-private list[str] sanitizeLines(list[str] lines) {
+// sanitize lines from '{' and '}' chars 
+private list[str] sanitizeLine(list[str] lines, list[str] chars) {
 	list[str] result = [];
 	str tmp;
 	for(line <- lines) {
-		tmp = replaceAll(line, "\t", "");
-		tmp = replaceAll(tmp, "{", "");
-		tmp = replaceAll(tmp, "}", "");
+		tmp = line;
+		for(char <- chars) {
+			tmp = replaceAll(tmp, char, "");
+		}
 		result += tmp;	
 	}
 	
