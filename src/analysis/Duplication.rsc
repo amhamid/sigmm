@@ -2,6 +2,7 @@ module analysis::Duplication
 
 import lang::java::jdt::m3::Core;
 import IO;
+import Number;
 
 import extract::Duplication;
 import extract::Volume;
@@ -15,13 +16,13 @@ str duplicationRating(M3 model) {
 private str getRating(real totalCodeDuplication) {
 	str result = "";
 		
-	if(totalCoveragePercentage >= 0 && totalCoveragePercentage <= 3) {
+	if(totalCodeDuplication >= 0 && totalCodeDuplication <= 3) {
 		result = "++";
-	} else if(totalCoveragePercentage > 3 && totalCoveragePercentage <= 5) {
+	} else if(totalCodeDuplication > 3 && totalCodeDuplication <= 5) {
 		result = "+";
-	} else if(totalCoveragePercentage > 5 && totalCoveragePercentage <= 10) {
+	} else if(totalCodeDuplication > 5 && totalCodeDuplication <= 10) {
 		result = "o";
-	} else if(totalCoveragePercentage > 10 && totalCoveragePercentage <= 20) {
+	} else if(totalCodeDuplication > 10 && totalCodeDuplication <= 20) {
 		result = "-";
 	} else {
 		result = "--";

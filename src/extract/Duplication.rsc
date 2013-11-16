@@ -40,7 +40,6 @@ private int countDuplicationPerMethod(Declaration ast, list[Declaration] theRest
 				// count as duplicate if size is > 5 
 				if(size(tmp) > 5 && [*_, tmp, *_] := otherAstLines) {
 					duplicateLines += tmp;	
-					iprintln(tmp);
 					tmp = [];			
 				} else {
 					tmp = [];
@@ -52,7 +51,7 @@ private int countDuplicationPerMethod(Declaration ast, list[Declaration] theRest
 	return size(duplicateLines); 
 }
 
-// sanitize lines from '{' and '}' chars 
+// sanitize lines 
 private list[str] sanitizeLine(list[str] lines, list[str] chars) {
 	list[str] result = [];
 	str tmp;
