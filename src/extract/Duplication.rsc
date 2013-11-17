@@ -33,7 +33,7 @@ private int countDuplicationPerMethod(Declaration ast, list[Declaration] theRest
 		list[str] otherAstLines = sanitizeLine(readFileLines(otherAst@src), ["\t", "{", "}"]);
 		
 		// iterate over non-empty astLines	
-		for(astLine <- astLines, !isEmpty(astLine)) {
+		for(astLine <- astLines, (size(otherAstLines) > 5) && !isEmpty(astLine)) {
 			if(astLine in otherAstLines) {
 				tmp += astLine;	
 			} else {

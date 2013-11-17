@@ -13,28 +13,33 @@ import util::OverallRating;
 void analyseMaintainability(loc project) {
 	M3 model = createM3FromEclipseProject(project);
 	
-	str volumeRating = volumeRating(model);
-	str cyclomaticComplexityRating = cyclomaticComplexityRating(model);
-	str duplicationRating = duplicationRating(model);
-	str unitSizeRating = unitSizeRating(model);
-	str unitTestingSizeRating = unitTestingSizeRating(model);
-	
-	printResult(volumeRating, cyclomaticComplexityRating, duplicationRating, unitSizeRating, unitTestingSizeRating);
-}
-
-void printResult(str volumeRating, str cyclomaticComplexityRating, str duplicationRating, str unitSizeRating, str unitTestingSizeRating) {
 	println();
 	println("======================================");
 	println(" Metric Rating:");
 	println("======================================");
+	
+	str volumeRating = volumeRating(model);
 	println("Volume rating: \t\t\t" + volumeRating);
-	println("Cyclomatic Complexity rating:   " + cyclomaticComplexityRating);
-	println("Duplication rating: \t\t" + duplicationRating);
+	
+	str unitSizeRating = unitSizeRating(model);
 	println("Unit Size rating: \t\t" + unitSizeRating);
+	
+	str unitTestingSizeRating = unitTestingSizeRating(model);
 	println("Unit Testing Size rating: \t" + unitTestingSizeRating);
+	
+	str cyclomaticComplexityRating = cyclomaticComplexityRating(model);
+	println("Cyclomatic Complexity rating:   " + cyclomaticComplexityRating);
+	
+	str duplicationRating = duplicationRating(model);
+	println("Duplication rating: \t\t" + duplicationRating);	
+	
 	println("======================================");
 	println();
 	
+	printTotalResult(volumeRating, cyclomaticComplexityRating, duplicationRating, unitSizeRating, unitTestingSizeRating);
+}
+
+void printTotalResult(str volumeRating, str cyclomaticComplexityRating, str duplicationRating, str unitSizeRating, str unitTestingSizeRating) {
 	str analyseabilityRating = getTotalRating([volumeRating, duplicationRating, unitSizeRating, unitTestingSizeRating]);
 	str changeabilityRating = getTotalRating([cyclomaticComplexityRating, duplicationRating]);
 	str stabilityRating = getTotalRating([unitTestingSizeRating]);
