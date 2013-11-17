@@ -5,7 +5,6 @@ import lang::java::jdt::m3::AST;
 
 import IO;
 import List;
-import Set;
 import String;
 
 int countTotalDuplication(M3 model) {
