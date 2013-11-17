@@ -2,7 +2,7 @@ module analysis::UnitTestingSize
 
 import lang::java::jdt::m3::Core;
 import IO;
-import Number;
+import util::Math;
 
 import extract::UnitTestingSize;
 import extract::Volume;

@@ -2,7 +2,7 @@ module analysis::Duplication
 
 import lang::java::jdt::m3::Core;
 import IO;
-import Number;
+import util::Math;
 
 import extract::Duplication;
 import extract::Volume;

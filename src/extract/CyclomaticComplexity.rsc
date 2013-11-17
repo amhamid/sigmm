@@ -2,7 +2,6 @@ module extract::CyclomaticComplexity
 
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
-import Number;
 
 import extract::UnitSize;
 import extract::Volume;
