@@ -1,16 +1,14 @@
 module analysis::Duplication
 
-import lang::java::jdt::m3::Core;
+import lang::java::jdt::m3::AST;
 import IO;
 import util::Math;
 
 import extract::Duplication;
-import extract::Volume;
 
-str duplicationRating(M3 model) {
-	int totalLoc = countTotalLoc(model);
-	int totalCodeDuplication = countTotalDuplication(model);
-	return getRating(toReal(totalCodeDuplication)/totalLoc * 100);
+str duplicationRating(list[Declaration] methodAsts, int totalProductionLoc) {
+	int totalCodeDuplication = countTotalDuplication(methodAsts);
+	return getRating(toReal(totalCodeDuplication)/totalProductionLoc * 100);
 }
 
 private str getRating(real totalCodeDuplication) {

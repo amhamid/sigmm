@@ -1,8 +1,10 @@
 module Sigmm
 
 import lang::java::jdt::m3::Core;
+import lang::java::jdt::m3::AST;
 import IO;
 
+import extract::Volume;
 import analysis::Volume;
 import analysis::CyclomaticComplexity;
 import analysis::Duplication;
@@ -12,25 +14,27 @@ import util::OverallRating;
 
 void analyseMaintainability(loc project) {
 	M3 model = createM3FromEclipseProject(project);
+	list[Declaration] methodAsts = [getMethodASTEclipse(method) | method <- methods(model)];
 	
 	println();
 	println("======================================");
 	println(" Metric Rating:");
 	println("======================================");
-	
-	str volumeRating = volumeRating(model);
+
+	int totalProductionLoc = countTotalProductionLoc(model);	
+	str volumeRating = volumeRating(totalProductionLoc);
 	println("Volume rating: \t\t\t" + volumeRating);
 	
-	str unitSizeRating = unitSizeRating(model);
+	str unitSizeRating = unitSizeRating(methodAsts, totalProductionLoc);
 	println("Unit Size rating: \t\t" + unitSizeRating);
 	
-	str unitTestingSizeRating = unitTestingSizeRating(model);
+	str unitTestingSizeRating = unitTestingSizeRating(methodAsts, totalProductionLoc);
 	println("Unit Testing Size rating: \t" + unitTestingSizeRating);
 	
-	str cyclomaticComplexityRating = cyclomaticComplexityRating(model);
+	str cyclomaticComplexityRating = cyclomaticComplexityRating(methodAsts, totalProductionLoc);
 	println("Cyclomatic Complexity rating:   " + cyclomaticComplexityRating);
 	
-	str duplicationRating = duplicationRating(model);
+	str duplicationRating = duplicationRating(methodAsts, totalProductionLoc);
 	println("Duplication rating: \t\t" + duplicationRating);	
 	
 	println("======================================");

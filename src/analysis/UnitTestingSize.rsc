@@ -1,21 +1,14 @@
 module analysis::UnitTestingSize
 
-import lang::java::jdt::m3::Core;
+import lang::java::jdt::m3::AST;
 import IO;
 import util::Math;
 
 import extract::UnitTestingSize;
-import extract::Volume;
 
-str unitTestingSizeRating(M3 model) {
-	int totalLoc = countTotalLoc(model);
-	list[tuple[int,int]] unitTestings = unitTestingSizePerUnit(model);
-	
-	// calculating covered LOC
-	int totalLocCovered = (0 | it + y | <x,y> <- unitTestings); 
-	
-	// calculating percentage of coverage 
-	real totalCoveragePercentage = toReal(totalLocCovered)/totalLoc * 100;
+str unitTestingSizeRating(list[Declaration] methodAsts, int totalProductionLoc) {
+	int totalLocCovered = totalUnitTestingSize(methodAsts);
+	real totalCoveragePercentage = toReal(totalLocCovered)/totalProductionLoc * 100;
 	
 	return getRating(totalCoveragePercentage);
 }

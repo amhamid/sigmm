@@ -2,20 +2,20 @@ module extract::Duplication
 
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
-
 import IO;
 import List;
 import String;
 
-int countTotalDuplication(M3 model) {
-	list[Declaration] asts = [getMethodASTEclipse(method) | method <- methods(model)];
+import util::Sanitizer;
+
+int countTotalDuplication(list[Declaration] methodAsts) {
 	
 	int totalDuplication = 0;
 	list[Declaration] alreadyProcessedAst = [];
 	
-	for(ast <- asts) {
+	for(ast <- methodAsts) {
 		// the rest of the ASTs (not including the actual method and the one that is already processed)
-		list[Declaration] theRestOfAsts = [x | x <- asts, x !:= ast && x notin alreadyProcessedAst];
+		list[Declaration] theRestOfAsts = [x | x <- methodAsts, x !:= ast && x notin alreadyProcessedAst];
 		totalDuplication += countDuplicationPerMethod(ast, theRestOfAsts);
 		alreadyProcessedAst += ast;
 	}
@@ -23,14 +23,16 @@ int countTotalDuplication(M3 model) {
 	return totalDuplication;
 }
 
-private int countDuplicationPerMethod(Declaration ast, list[Declaration] theRestOfAsts) {
-	list[str] astLines = sanitizeLine(readFileLines(ast@src), ["\t"]);
+private int countDuplicationPerMethod(Declaration methodAst, list[Declaration] theRestOfMethodAsts) {
+	list[str] astLines = [line | line <- sanitizeLines(readFileLines(methodAst@src), ["\t", "{", "}"]), !isEmpty(line), !isComment(line)];
+	astLines += "EOM"; // end of method (to identify the end of a method)
+	
 	list[str] duplicateLines = [];
 
-	for(otherAst <- theRestOfAsts) {
+	for(otherMethodAst <- theRestOfMethodAsts) {
 		list[str] tmp = [];
-		list[str] otherAstLines = sanitizeLine(readFileLines(otherAst@src), ["\t", "{", "}"]);
-		
+		list[str] otherAstLines = [line | line <- sanitizeLines(readFileLines(otherMethodAst@src), ["\t", "{", "}"]), !isEmpty(line), !isComment(line)];
+
 		// iterate over non-empty astLines	
 		for(astLine <- astLines, (size(otherAstLines) > 5) && !isEmpty(astLine)) {
 			if(astLine in otherAstLines) {
@@ -38,7 +40,7 @@ private int countDuplicationPerMethod(Declaration ast, list[Declaration] theRest
 			} else {
 				// count as duplicate if size is > 5 
 				if(size(tmp) > 5 && [*_, tmp, *_] := otherAstLines) {
-					duplicateLines += tmp;	
+					duplicateLines += tmp;
 					tmp = [];			
 				} else {
 					tmp = [];
@@ -50,17 +52,3 @@ private int countDuplicationPerMethod(Declaration ast, list[Declaration] theRest
 	return size(duplicateLines); 
 }
 
-// sanitize lines 
-private list[str] sanitizeLine(list[str] lines, list[str] chars) {
-	list[str] result = [];
-	str tmp;
-	for(line <- lines) {
-		tmp = line;
-		for(char <- chars) {
-			tmp = replaceAll(tmp, char, "");
-		}
-		result += tmp;	
-	}
-	
-	return result;
-}

@@ -1,19 +1,15 @@
 module analysis::CyclomaticComplexity
 
-import lang::java::jdt::m3::Core;
+import lang::java::jdt::m3::AST;
 import IO;
 import util::Math;
 
-import extract::UnitSize;
-import extract::Volume;
 import extract::CyclomaticComplexity;
 
 // calculate cyclomatic complexity rating
-str cyclomaticComplexityRating(M3 model) {
+str cyclomaticComplexityRating(list[Declaration] methodAsts, int totalProductionLoc) {
 	result = "";
-
-	int totalLoc = countTotalLoc(model);
-	list[tuple[int,int]] complexityUnits = cyclomaticComplexityPerUnit(model);
+	list[tuple[int,int]] complexityUnits = cyclomaticComplexityPerUnit(methodAsts);
 	
 	// filtering the risk into moderate, high and very high risk
 	list[tuple[int,int]] moderateRisk = [<x, y> | <x,y> <- complexityUnits, x > 10, x <= 20];
@@ -26,14 +22,14 @@ str cyclomaticComplexityRating(M3 model) {
 	int veryHighRiskTotalLoc = (0 | it + y | <x,y> <- veryHighRisk);
 
 	// calculating percentage of the risks
-	real moderateRiskPercentage = toReal(moderateRiskTotalLoc)/totalLoc * 100;
-	real highRiskPercentage = toReal(highRiskTotalLoc)/totalLoc * 100;
-	real veryHighRiskPercentage = toReal(veryHighRiskTotalLoc)/totalLoc * 100;
+	real moderateRiskPercentage = toReal(moderateRiskTotalLoc)/totalProductionLoc * 100;
+	real highRiskPercentage = toReal(highRiskTotalLoc)/totalProductionLoc * 100;
+	real veryHighRiskPercentage = toReal(veryHighRiskTotalLoc)/totalProductionLoc * 100;
 	
 	return getRating(moderateRiskPercentage, highRiskPercentage, veryHighRiskPercentage);
 }
 
-str getRating(real moderateRiskPercentage, real highRiskPercentage, real veryHighRiskPercentage) {
+private str getRating(real moderateRiskPercentage, real highRiskPercentage, real veryHighRiskPercentage) {
 	str result = "";
 		
 	if(moderateRiskPercentage <= 25 && highRiskPercentage == 0 && veryHighRiskPercentage == 0) {

@@ -1,15 +1,9 @@
 module analysis::Volume
 
-import lang::java::jdt::m3::Core;
 import IO;
 
-import extract::Volume;
-
 // calculate volume rating (excluding comments and empty lines)
-str volumeRating(M3 model) = 
-	getRating(countTotalProductionLoc(model));
-
-private str getRating(int volume) {
+str volumeRating(int volume) {
 	int kloc = volume / 1000;
 	str result = "";
 	

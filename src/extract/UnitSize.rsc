@@ -2,17 +2,30 @@ module extract::UnitSize
 
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
+import IO;
+import String;
+import List;
 
-import extract::Volume;
-import extract::CyclomaticComplexity;
+import util::Sanitizer;
 
-// calculate method size excluding comments
-list[int] unitSizePerUnit(M3 model) =
-	[unitSize(declr[1], doc[1]) | declr <- model@declarations, doc <- model@documentation, isMethod(declr[0]) && declr[1].begin.line == doc[1].begin.line];
+// calculate total unit size
+int totalUnitSize(list[Declaration] methodAsts) =
+	(0 | it + unitSize | unitSize <- unitSizePerUnit(methodAsts));
 
-// calculate method size excluding comments
-int unitSize(M3 model, loc methodSrc) =
-	(0 | it + unitSize(methodSrc, doc[1]) | doc <- model@documentation, methodSrc.begin.line == doc[1].begin.line);
+// calculate unit size per unit
+list[int] unitSizePerUnit(list[Declaration] methodAsts) {
+	list[int] totalMethodLines = [];
+	
+	for(ast <- methodAsts) {
+		totalMethodLines += unitSize(ast@src);	
+	}
+	
+	return totalMethodLines;
+}
 
-private int unitSize(loc methodSrc, loc methodDoc) =
-	(methodSrc.end.line-methodSrc.begin.line) - (methodDoc.end.line-methodDoc.begin.line);
+// calculate a unit size
+int unitSize(loc methodSrc)	{
+	list[str] rawLines = sanitizeLines(readFileLines(methodSrc), ["\t"]);
+	list[str] methodLines = [line | line <- rawLines, !isEmpty(line), !isComment(line)];
+	return size(methodLines);
+}
