@@ -3,6 +3,8 @@ module Sigmm
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import IO;
+import String;
+import util::FileSystem;
 
 import extract::Volume;
 import analysis::Volume;
@@ -14,14 +16,19 @@ import util::OverallRating;
 
 void analyseMaintainability(loc project) {
 	M3 model = createM3FromEclipseProject(project);
-	list[Declaration] methodAsts = [getMethodASTEclipse(method) | method <- methods(model)];
+
+	// filter out any files with junit 
+	list[loc] filesWithoutJUnit = [file | file <- files(model), !contains(file.path, "/test/"), !contains(file.path, "/junit/")];
+	
+	// get AST for all methods (excluding junit)
+	list[Declaration] methodAsts = [ *[ d | /Declaration d := createAstFromFile(file, true), d is method] | file <- filesWithoutJUnit];
 	
 	println();
 	println("======================================");
 	println(" Metric Rating:");
 	println("======================================");
 
-	int totalProductionLoc = countTotalProductionLoc(model);	
+	int totalProductionLoc = countTotalProductionLoc(model, filesWithoutJUnit);	
 	str volumeRating = volumeRating(totalProductionLoc);
 	println("Volume rating: \t\t\t" + volumeRating);
 	

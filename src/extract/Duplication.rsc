@@ -24,31 +24,34 @@ int countTotalDuplication(list[Declaration] methodAsts) {
 }
 
 private int countDuplicationPerMethod(Declaration methodAst, list[Declaration] theRestOfMethodAsts) {
-	list[str] astLines = [line | line <- sanitizeLines(readFileLines(methodAst@src), ["\t", "{", "}"]), !isEmpty(line), !isComment(line)];
-	astLines += "EOM"; // end of method (to identify the end of a method)
-	
 	list[str] duplicateLines = [];
-
-	for(otherMethodAst <- theRestOfMethodAsts) {
-		list[str] tmp = [];
-		list[str] otherAstLines = [line | line <- sanitizeLines(readFileLines(otherMethodAst@src), ["\t", "{", "}"]), !isEmpty(line), !isComment(line)];
-
-		// iterate over non-empty astLines	
-		for(astLine <- astLines, (size(otherAstLines) > 5) && !isEmpty(astLine)) {
-			if(astLine in otherAstLines) {
-				tmp += astLine;	
-			} else {
-				// count as duplicate if size is > 5 
-				if(size(tmp) > 5 && [*_, tmp, *_] := otherAstLines) {
-					duplicateLines += tmp;
-					tmp = [];			
-				} else {
-					tmp = [];
+	
+	if(/method(m,_,_,_) := methodAst@typ) {
+		list[str] astLines = [line | line <- sanitizeLines(readFileLines(m), ["\t", "{", "}"]), !isEmpty(line), !isComment(line)];
+		astLines += "EOM"; // end of method (to identify the end of a method)
+		
+		for(otherMethodAst <- theRestOfMethodAsts) {
+			list[str] tmp = [];
+			if(/method(otherMethod,_,_,_) := otherMethodAst@typ) {
+				list[str] otherAstLines = [line | line <- sanitizeLines(readFileLines(otherMethod), ["\t", "{", "}"]), !isEmpty(line), !isComment(line)];
+		
+				// iterate over non-empty astLines	
+				for(astLine <- astLines, (size(otherAstLines) > 5) && !isEmpty(astLine)) {
+					if(astLine in otherAstLines) {
+						tmp += astLine;	
+					} else {
+						// count as duplicate if size is > 5 
+						if(size(tmp) > 5 && [*_, tmp, *_] := otherAstLines) {
+							duplicateLines += tmp;
+							tmp = [];			
+						} else {
+							tmp = [];
+						}
+					}		
 				}
-			}		
+			}
 		}
 	}
 	
 	return size(duplicateLines); 
 }
-

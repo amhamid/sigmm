@@ -24,8 +24,8 @@ list[tuple[int, int]] cyclomaticComplexityPerUnit(list[Declaration] methodAsts) 
 			case \catch(_,_) : result += 1;			
 		}
 		
-		if(result > 1) {
-			methodLoc = unitSize(ast@src);
+		if(result > 1 && (/method(m,_,_,_) := ast@typ)) {
+			methodLoc = unitSize(m);
 			complexityUnits += <result, methodLoc>;
 		}				
 	}

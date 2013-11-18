@@ -17,15 +17,17 @@ list[int] unitSizePerUnit(list[Declaration] methodAsts) {
 	list[int] totalMethodLines = [];
 	
 	for(ast <- methodAsts) {
-		totalMethodLines += unitSize(ast@src);	
+		if(/method(m,_,_,_) := ast@typ) {
+			totalMethodLines += unitSize(m);
+		}
 	}
 	
 	return totalMethodLines;
 }
 
 // calculate a unit size
-int unitSize(loc methodSrc)	{
-	list[str] rawLines = sanitizeLines(readFileLines(methodSrc), ["\t"]);
+int unitSize(loc methodLoc)	{
+	list[str] rawLines = sanitizeLines(readFileLines(methodLoc), ["\t"]);
 	list[str] methodLines = [line | line <- rawLines, !isEmpty(line), !isComment(line)];
 	return size(methodLines);
 }

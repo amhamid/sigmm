@@ -17,8 +17,8 @@ int totalUnitTestingSize(list[Declaration] methodAsts) {
 			case \assert(_,_) : numberOfAssert += 1;
 		}
 		
-		if(numberOfAssert > 0) {
-			methodLoc = unitSize(ast@src);
+		if(numberOfAssert > 0 && (/method(m,_,_,_) := ast@typ)) {
+			methodLoc = unitSize(m);
 			totalUnitTesting += methodLoc;
 		}
 	}
