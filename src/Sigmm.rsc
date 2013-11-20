@@ -5,6 +5,7 @@ import lang::java::jdt::m3::AST;
 import IO;
 import String;
 import util::FileSystem;
+import util::Math;
 
 import extract::Volume;
 import analysis::Volume;
@@ -31,34 +32,35 @@ void analyseMaintainability(loc project) {
 	int totalProductionLoc = countTotalProductionLoc(model, filesWithoutJUnit);
 	str volumeRating = volumeRating(totalProductionLoc);
 	println("Volume: <volumeRating>");
-	println("* Size LOC: <totalProductionLoc>");
+	println("* Size: <totalProductionLoc> LOC");
 	
 	// Unit Size analysis returns a tuple with [rating, mediumRiskPercentage, highRiskPercentage, veryHighRiskPercentage]
 	tuple[str, real, real, real] unitSizeMetric = unitSizeRating(methodAsts, totalProductionLoc);
 	str unitSizeRating = unitSizeMetric[0];
-	real unitSizeModerateRiskPercentage = unitSizeMetric[1];
-	real unitSizeHighRiskPercentage = unitSizeMetric[2];
-	real unitSizeVeryHighRiskPercentage = unitSizeMetric[3];
+	int unitSizeModerateRiskPercentage = toInt(unitSizeMetric[1]);
+	int unitSizeHighRiskPercentage = toInt(unitSizeMetric[2]);
+	int unitSizeVeryHighRiskPercentage = toInt(unitSizeMetric[3]);
 	println();
 	println("Unit Size: <unitSizeRating>");
-	printRisk(unitSizeModerateRiskPercentage, unitSizeHighRiskPercentage, unitSizeVeryHighRiskPercentage);
+	printRiskPercentage(unitSizeModerateRiskPercentage, unitSizeHighRiskPercentage, unitSizeVeryHighRiskPercentage);
 	
 	// Cyclomatic Complexity analysis returns a tuple with [rating, mediumRiskPercentage, highRiskPercentage, veryHighRiskPercentage]
 	tuple[str, real, real, real] cyclomaticComplexityMetric = cyclomaticComplexityRating(methodAsts, totalProductionLoc);
 	str cyclomaticComplexityRating = cyclomaticComplexityMetric[0];
-	real cyclomaticComplexityModerateRiskPercentage = cyclomaticComplexityMetric[1];
-	real cyclomaticComplexityHighRiskPercentage = cyclomaticComplexityMetric[2];
-	real cyclomaticComplexityVeryHighRiskPercentage = cyclomaticComplexityMetric[3];
+	int cyclomaticComplexityModerateRiskPercentage = toInt(cyclomaticComplexityMetric[1]);
+	int cyclomaticComplexityHighRiskPercentage = toInt(cyclomaticComplexityMetric[2]);
+	int cyclomaticComplexityVeryHighRiskPercentage = toInt(cyclomaticComplexityMetric[3]);
 	println();
 	println("Cyclomatic Complexity: <cyclomaticComplexityRating>");
-	printRisk(cyclomaticComplexityModerateRiskPercentage, cyclomaticComplexityHighRiskPercentage, cyclomaticComplexityVeryHighRiskPercentage);
+	printRiskPercentage(cyclomaticComplexityModerateRiskPercentage, cyclomaticComplexityHighRiskPercentage, cyclomaticComplexityVeryHighRiskPercentage);
 	
 	tuple[str, int] duplicationMetric = duplicationRating(methodAsts, totalProductionLoc);
 	str duplicationRating = duplicationMetric[0];
 	int totalDuplicationLoc = duplicationMetric[1];
+	real duplicationPercentage = toReal(totalDuplicationLoc)/totalProductionLoc * 100;
 	println();
 	println("Duplication: <duplicationRating>");	
-	println("* Total duplication LOC: <totalDuplicationLoc>");	
+	println("* Total duplication: <totalDuplicationLoc> LOC (<toInt(duplicationPercentage)>%)");	
 	
 	println("======================================");
 	println();
@@ -66,10 +68,10 @@ void analyseMaintainability(loc project) {
 	printTotalResult(volumeRating, cyclomaticComplexityRating, duplicationRating, unitSizeRating);
 }
 
-private void printRisk(real moderateRiskPercentage, real highRiskPercentage, real veryHighRiskPercentage) {
-	println("* Moderate Risk: <moderateRiskPercentage>");
-	println("* High Risk: <highRiskPercentage>");
-	println("* Very High Risk: <veryHighRiskPercentage>");
+private void printRiskPercentage(int moderateRiskPercentage, int highRiskPercentage, int veryHighRiskPercentage) {
+	println("* Moderate Risk: <moderateRiskPercentage>%");
+	println("* High Risk: <highRiskPercentage>%");
+	println("* Very High Risk: <veryHighRiskPercentage>%");
 }
 
 private void printTotalResult(str volumeRating, str cyclomaticComplexityRating, str duplicationRating, str unitSizeRating) {
