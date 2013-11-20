@@ -25,3 +25,14 @@ bool isComment(str line) {
 			|| startsWith(trimmedLine, "*") 
 			|| startsWith(trimmedLine, "*/");
 }
+
+bool isProductionSourceFile(str path) {
+	return startsWith(path, "/src/")
+			&& !contains(path, "/generated/")
+			&& !contains(path, "/sample/")
+			&& !contains(path, "/samples/")
+			&& !contains(path, "/test/") 
+			&& !contains(path, "/tests/") 
+			&& !contains(path, "/junit/")
+			&& !contains(path, "/junits/");
+}

@@ -13,15 +13,16 @@ import analysis::CyclomaticComplexity;
 import analysis::Duplication;
 import analysis::UnitSize;
 import util::OverallRating;
+import util::Sanitizer;
 
 void analyseMaintainability(loc project) {
 	M3 model = createM3FromEclipseProject(project);
 
-	// filter out any files with junit 
-	list[loc] filesWithoutJUnit = [file | file <- files(model), !contains(file.path, "/test/"), !contains(file.path, "/junit/")];
+	// filter out any files that are not production code (such as junit, samples, generated code, etc.)
+	list[loc] productionSourceFiles = [file | file <- files(model), isProductionSourceFile(file.path)];
 	
-	// get AST for all methods (excluding junit)
-	list[Declaration] methodAsts = [ *[ d | /Declaration d := createAstFromFile(file, true), d is method] | file <- filesWithoutJUnit];
+	// get AST for all methods from all of the production source files
+	list[Declaration] methodAsts = [ *[ d | /Declaration d := createAstFromFile(file, true), d is method] | file <- productionSourceFiles];
 	
 	println();
 	println("======================================");
@@ -29,7 +30,7 @@ void analyseMaintainability(loc project) {
 	println("======================================");
 	
 	// Volume analysis
-	int totalProductionLoc = countTotalProductionLoc(model, filesWithoutJUnit);
+	int totalProductionLoc = countTotalProductionLoc(model, productionSourceFiles);
 	str volumeRating = volumeRating(totalProductionLoc);
 	println("Volume: <volumeRating>");
 	println("* Size: <totalProductionLoc> LOC");
