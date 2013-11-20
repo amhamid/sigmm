@@ -9,49 +9,57 @@ import String;
 import util::Sanitizer;
 
 int countTotalDuplication(list[Declaration] methodAsts) {
-	
-	int totalDuplication = 0;
-	list[Declaration] alreadyProcessedAst = [];
-	
-	for(ast <- methodAsts) {
-		// the rest of the ASTs (not including the actual method and the one that is already processed)
-		list[Declaration] theRestOfAsts = [x | x <- methodAsts, x !:= ast && x notin alreadyProcessedAst];
-		totalDuplication += countDuplicationPerMethod(ast, theRestOfAsts);
-		alreadyProcessedAst += ast;
-	}
+	list[list[str]] allMethodLines = [];
 
-	return totalDuplication;
-}
-
-private int countDuplicationPerMethod(Declaration methodAst, list[Declaration] theRestOfMethodAsts) {
-	list[str] duplicateLines = [];
-	
-	if(/method(m,_,_,_) := methodAst@typ) {
-		list[str] astLines = [line | line <- sanitizeLines(readFileLines(m), ["\t", "{", "}"]), !isEmpty(line), !isComment(line)];
-		astLines += "EOM"; // end of method (to identify the end of a method)
-		
-		for(otherMethodAst <- theRestOfMethodAsts) {
-			list[str] tmp = [];
-			if(/method(otherMethod,_,_,_) := otherMethodAst@typ) {
-				list[str] otherAstLines = [line | line <- sanitizeLines(readFileLines(otherMethod), ["\t", "{", "}"]), !isEmpty(line), !isComment(line)];
-		
-				// iterate over non-empty astLines	
-				for(astLine <- astLines, (size(otherAstLines) > 5) && !isEmpty(astLine)) {
-					if(astLine in otherAstLines) {
-						tmp += astLine;	
-					} else {
-						// count as duplicate if size is > 5 
-						if(size(tmp) > 5 && [*_, tmp, *_] := otherAstLines) {
-							duplicateLines += tmp;
-							tmp = [];			
-						} else {
-							tmp = [];
-						}
-					}		
-				}
+	for(methodAst <- methodAsts) {
+		if(/method(m,_,_,_) := methodAst@typ) {
+			list[str] lines = [line | line <- sanitizeLines(readFileLines(m), ["\t", "{", "}"]), !isEmpty(line), !isComment(line)];
+			if(size(lines) > 5) {
+				allMethodLines += [lines];	
 			}
 		}
 	}
 	
-	return size(duplicateLines); 
+	return (0 | it + size(duplicateLines) | duplicateLines <- getDuplicatedLines(allMethodLines));
+}
+
+private list[list[str]] getDuplicatedLines(list[list[str]] allMethodLines) {
+	list[list[str]] totalDuplicateLines = [];
+	
+	if(size(allMethodLines) <= 1) {
+		return [];
+	} else {
+		list[str] oneMethodLines = head(allMethodLines);
+		oneMethodLines += "EOM"; // end of method (to identify the end of a method)
+		list[list[str]] theRestMethodLinesWithoutDuplicateFromFirstMethod = [];
+
+		for(nextMethodLines <- tail(allMethodLines)) {
+			list[str] duplicateLinesInOneMethod = [];
+			list[str] duplicateLinesInOneBlock = [];
+			
+			for(oneMethodLine <- oneMethodLines) {
+				if(oneMethodLine in nextMethodLines && [*_, duplicateLinesInOneBlock, oneMethodLine, *_] := nextMethodLines) {
+					duplicateLinesInOneBlock += oneMethodLine;
+				} else if(size(duplicateLinesInOneBlock) > 5) {
+					totalDuplicateLines += [duplicateLinesInOneBlock];
+					duplicateLinesInOneMethod += duplicateLinesInOneBlock;
+					duplicateLinesInOneBlock = [];
+				} else {
+					duplicateLinesInOneBlock = [];
+				}		
+			}
+			
+			// remove the duplicate found from the 'otherMethodLines'
+			theRestMethodLinesWithoutDuplicateFromFirstMethod += [ nextMethodLines - duplicateLinesInOneMethod ];
+		}
+		
+		if(size(totalDuplicateLines) > 0) {
+			// including the number of duplicate lines from the first method itself 
+			//(e.g. 4 methods with 5 lines duplicate on all of them then the number of duplicate 
+			//is 15 lines from 3 methods + 5 from the first methods = 20 total of duplicate lines)
+			totalDuplicateLines = totalDuplicateLines + [totalDuplicateLines[0]];
+		}
+		
+		return totalDuplicateLines + getDuplicatedLines(theRestMethodLinesWithoutDuplicateFromFirstMethod);
+	}
 }
