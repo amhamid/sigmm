@@ -28,3 +28,6 @@ Analyseability: 			o
 Changeability: 				o
 Testability: 				--
 ==========================================
+
+
+Elapsed time: 	40 seconds

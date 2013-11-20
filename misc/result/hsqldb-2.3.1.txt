@@ -4,20 +4,20 @@ rascal>analyseMaintainability(|project://hsqldb-2.3.1|);
  Metric Rating:
 ==========================================
 Volume: 					+
-	* Size: 				154463 LOC
+	* Size: 				149871 LOC
 
 Unit Size: 					--
 	* Moderate Risk: 		20%
 	* High Risk: 			13%
-	* Very High Risk: 		17%
+	* Very High Risk: 		18%
 
 Cyclomatic Complexity: 		--
 	* Moderate Risk: 		12%
 	* High Risk: 			 9%
-	* Very High Risk: 		 7%
+	* Very High Risk: 		 8%
 
 Duplication: 				o
-	* Total duplication: 	9274 LOC (6%)
+	* Total duplication: 	8230 LOC (5%)
 ==========================================
 
 
@@ -29,3 +29,5 @@ Changeability: 				-
 Testability:				--
 ==========================================
 	
+
+Elapsed time: 	24 minutes	

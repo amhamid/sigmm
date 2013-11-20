@@ -14,8 +14,12 @@ import analysis::Duplication;
 import analysis::UnitSize;
 import util::OverallRating;
 import util::Sanitizer;
+import util::Benchmark;
 
 void analyseMaintainability(loc project) {
+	int startTime = getMilliTime();
+	
+	// create M3 model from the project
 	M3 model = createM3FromEclipseProject(project);
 
 	// filter out any files that are not production code (such as junit, samples, generated code, etc.)
@@ -67,6 +71,19 @@ void analyseMaintainability(loc project) {
 	println();
 	
 	printTotalResult(volumeRating, cyclomaticComplexityRating, duplicationRating, unitSizeRating);
+	
+	int endTime = getMilliTime();
+	int elapsedTimeInSeconds = (endTime-startTime)/1000;
+	println();
+	printElapsedTime(elapsedTimeInSeconds);
+}
+
+void printElapsedTime(int elapsedTimeInSeconds) {
+	if(elapsedTimeInSeconds<60) {
+		println("Elapsed time: <elapsedTimeInSeconds> seconds");
+	} else {
+		println("Elapsed time: <elapsedTimeInSeconds/60> minutes");
+	}	
 }
 
 private void printRiskPercentage(int moderateRiskPercentage, int highRiskPercentage, int veryHighRiskPercentage) {
