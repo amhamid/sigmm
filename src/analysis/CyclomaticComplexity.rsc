@@ -6,8 +6,9 @@ import util::Math;
 
 import extract::CyclomaticComplexity;
 
-// calculate cyclomatic complexity rating
-str cyclomaticComplexityRating(list[Declaration] methodAsts, int totalProductionLoc) {
+// calculate cyclomatic complexity rating 
+// return a tuple with [rating, mediumRiskPercentage, highRiskPercentage, veryHighRiskPercentage]
+tuple[str, real, real, real] cyclomaticComplexityRating(list[Declaration] methodAsts, int totalProductionLoc) {
 	result = "";
 	list[tuple[int,int]] complexityUnits = cyclomaticComplexityPerUnit(methodAsts);
 	
@@ -25,8 +26,9 @@ str cyclomaticComplexityRating(list[Declaration] methodAsts, int totalProduction
 	real moderateRiskPercentage = toReal(moderateRiskTotalLoc)/totalProductionLoc * 100;
 	real highRiskPercentage = toReal(highRiskTotalLoc)/totalProductionLoc * 100;
 	real veryHighRiskPercentage = toReal(veryHighRiskTotalLoc)/totalProductionLoc * 100;
+	str rating = getRating(moderateRiskPercentage, highRiskPercentage, veryHighRiskPercentage);
 	
-	return getRating(moderateRiskPercentage, highRiskPercentage, veryHighRiskPercentage);
+	return <rating, moderateRiskPercentage, highRiskPercentage, veryHighRiskPercentage>;
 }
 
 private str getRating(real moderateRiskPercentage, real highRiskPercentage, real veryHighRiskPercentage) {

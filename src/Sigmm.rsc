@@ -26,19 +26,39 @@ void analyseMaintainability(loc project) {
 	println("======================================");
 	println(" Metric Rating:");
 	println("======================================");
-
-	int totalProductionLoc = countTotalProductionLoc(model, filesWithoutJUnit);	
+	
+	// Volume analysis
+	int totalProductionLoc = countTotalProductionLoc(model, filesWithoutJUnit);
 	str volumeRating = volumeRating(totalProductionLoc);
-	println("Volume: \t\t\t" + volumeRating);
+	println("Volume: <volumeRating>");
+	println("* Size LOC: <totalProductionLoc>");
 	
-	str unitSizeRating = unitSizeRating(methodAsts, totalProductionLoc);
-	println("Unit Size: \t\t\t" + unitSizeRating);
+	// Unit Size analysis returns a tuple with [rating, mediumRiskPercentage, highRiskPercentage, veryHighRiskPercentage]
+	tuple[str, real, real, real] unitSizeMetric = unitSizeRating(methodAsts, totalProductionLoc);
+	str unitSizeRating = unitSizeMetric[0];
+	real unitSizeModerateRiskPercentage = unitSizeMetric[1];
+	real unitSizeHighRiskPercentage = unitSizeMetric[2];
+	real unitSizeVeryHighRiskPercentage = unitSizeMetric[3];
+	println();
+	println("Unit Size: <unitSizeRating>");
+	printRisk(unitSizeModerateRiskPercentage, unitSizeHighRiskPercentage, unitSizeVeryHighRiskPercentage);
 	
-	str cyclomaticComplexityRating = cyclomaticComplexityRating(methodAsts, totalProductionLoc);
-	println("Cyclomatic Complexity: \t\t" + cyclomaticComplexityRating);
+	// Cyclomatic Complexity analysis returns a tuple with [rating, mediumRiskPercentage, highRiskPercentage, veryHighRiskPercentage]
+	tuple[str, real, real, real] cyclomaticComplexityMetric = cyclomaticComplexityRating(methodAsts, totalProductionLoc);
+	str cyclomaticComplexityRating = cyclomaticComplexityMetric[0];
+	real cyclomaticComplexityModerateRiskPercentage = cyclomaticComplexityMetric[1];
+	real cyclomaticComplexityHighRiskPercentage = cyclomaticComplexityMetric[2];
+	real cyclomaticComplexityVeryHighRiskPercentage = cyclomaticComplexityMetric[3];
+	println();
+	println("Cyclomatic Complexity: <cyclomaticComplexityRating>");
+	printRisk(cyclomaticComplexityModerateRiskPercentage, cyclomaticComplexityHighRiskPercentage, cyclomaticComplexityVeryHighRiskPercentage);
 	
-	str duplicationRating = duplicationRating(methodAsts, totalProductionLoc);
-	println("Duplication: \t\t\t" + duplicationRating);	
+	tuple[str, int] duplicationMetric = duplicationRating(methodAsts, totalProductionLoc);
+	str duplicationRating = duplicationMetric[0];
+	int totalDuplicationLoc = duplicationMetric[1];
+	println();
+	println("Duplication: <duplicationRating>");	
+	println("* Total duplication LOC: <totalDuplicationLoc>");	
 	
 	println("======================================");
 	println();
@@ -46,7 +66,13 @@ void analyseMaintainability(loc project) {
 	printTotalResult(volumeRating, cyclomaticComplexityRating, duplicationRating, unitSizeRating);
 }
 
-void printTotalResult(str volumeRating, str cyclomaticComplexityRating, str duplicationRating, str unitSizeRating) {
+private void printRisk(real moderateRiskPercentage, real highRiskPercentage, real veryHighRiskPercentage) {
+	println("* Moderate Risk: <moderateRiskPercentage>");
+	println("* High Risk: <highRiskPercentage>");
+	println("* Very High Risk: <veryHighRiskPercentage>");
+}
+
+private void printTotalResult(str volumeRating, str cyclomaticComplexityRating, str duplicationRating, str unitSizeRating) {
 	str analyseabilityRating = getTotalRating([volumeRating, duplicationRating, unitSizeRating]);
 	str changeabilityRating = getTotalRating([cyclomaticComplexityRating, duplicationRating]);
 	str testabilityRating = getTotalRating([cyclomaticComplexityRating, unitSizeRating]);
@@ -54,9 +80,9 @@ void printTotalResult(str volumeRating, str cyclomaticComplexityRating, str dupl
 	println("======================================");
 	println(" SIG Maintainability Rating:");
 	println("======================================");
-	println("Analyseability: \t\t" + analyseabilityRating);
-	println("Changeability: \t\t\t" + changeabilityRating);
-	println("Testability: \t\t\t" + testabilityRating);
+	println("Analyseability: <analyseabilityRating>");
+	println("Changeability: <changeabilityRating>");
+	println("Testability: <testabilityRating>");
 	println("======================================");
 	println();
 }

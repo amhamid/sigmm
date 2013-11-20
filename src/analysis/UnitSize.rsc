@@ -7,7 +7,8 @@ import util::Math;
 import extract::UnitSize;
 
 // calculate unit size rating
-str unitSizeRating(list[Declaration] methodAsts, int totalProductionLoc) {
+// return a tuple with [rating, mediumRiskPercentage, highRiskPercentage, veryHighRiskPercentage]
+tuple[str, real, real, real] unitSizeRating(list[Declaration] methodAsts, int totalProductionLoc) {
 	list[int] unitSizeUnits = unitSizePerUnit(methodAsts);
 	
 	// filtering the risk into moderate, high and very high risk
@@ -24,8 +25,9 @@ str unitSizeRating(list[Declaration] methodAsts, int totalProductionLoc) {
 	real moderateRiskPercentage = toReal(moderateRiskTotalLoc)/totalProductionLoc * 100;
 	real highRiskPercentage = toReal(highRiskTotalLoc)/totalProductionLoc * 100;
 	real veryHighRiskPercentage = toReal(veryHighRiskTotalLoc)/totalProductionLoc * 100;
+	str rating = getRating(moderateRiskPercentage, highRiskPercentage, veryHighRiskPercentage);
 	
-	return getRating(moderateRiskPercentage, highRiskPercentage, veryHighRiskPercentage);
+	return <rating, moderateRiskPercentage, highRiskPercentage, veryHighRiskPercentage>; 
 }
 
 private str getRating(real moderateRiskPercentage, real highRiskPercentage, real veryHighRiskPercentage) {

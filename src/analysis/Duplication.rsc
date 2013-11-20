@@ -6,9 +6,12 @@ import util::Math;
 
 import extract::Duplication;
 
-str duplicationRating(list[Declaration] methodAsts, int totalProductionLoc) {
+// calculate total of duplication line of code
+// returns a tuple[rating, totalDuplicationLine]
+tuple[str, int] duplicationRating(list[Declaration] methodAsts, int totalProductionLoc) {
 	int totalCodeDuplication = countTotalDuplication(methodAsts);
-	return getRating(toReal(totalCodeDuplication)/totalProductionLoc * 100);
+	str rating = getRating(toReal(totalCodeDuplication)/totalProductionLoc * 100);
+	return <rating, totalCodeDuplication>;
 }
 
 private str getRating(real totalCodeDuplication) {
