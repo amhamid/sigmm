@@ -13,7 +13,6 @@ list[tuple[int, int]] cyclomaticComplexityPerUnit(list[Declaration] methodAsts) 
 		int result = 1;
 		
 		visit(ast) {
-		  	case do(_,_) : result += 1;
 	  		case foreach(_,_,_) : result += 1;
 	  		case \for(_,_,_,_) : result += 1;
 	  		case \for(_,_,_) : result += 1;
