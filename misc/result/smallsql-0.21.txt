@@ -1,0 +1,30 @@
+rascal>analyseMaintainability(|project://smallsql-0.21|);
+
+==========================================
+ Metric Rating:
+==========================================
+Volume: 					++
+	* Size: 				18360 LOC
+
+Unit Size: 					--
+	* Moderate Risk: 		16%
+	* High Risk: 			10%
+	* Very High Risk: 		 9%
+
+Cyclomatic Complexity: 		--
+	* Moderate Risk: 		 7%
+	* High Risk:			12%
+	* Very High Risk:		 5%
+
+Duplication: 				++
+	* Total duplication: 	495 LOC (2%)
+==========================================
+
+
+==========================================
+ SIG Maintainability Rating:
+==========================================
+Analyseability: 			o
+Changeability: 				o
+Testability: 				--
+==========================================
