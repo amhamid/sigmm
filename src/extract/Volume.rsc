@@ -2,6 +2,10 @@ module extract::Volume
 
 import lang::java::jdt::m3::Core;
 import IO;
+import String;
+import List;
+
+import util::Sanitizer;
 
 // calculate production code volume (excluding unit tests, comments and empty lines)
 int countTotalProductionLoc(M3 model, list[loc] files) =
@@ -18,3 +22,12 @@ int countTotalCommentedLoc(M3 model, list[loc] files)
 // calculate total of empty lines
 int countTotalEmptyLoc(M3 model, list[loc] files) 
 	= (0 | it + 1 | compilationUnit <- files, doc <- model@declarations[compilationUnit], /^\s*$/ <- readFileLines(doc));
+
+// calculate total of production code volume from a given list of files
+int countTotalProductionLoc(list[loc] files) {
+	list[str] lines = [];
+	for(loc file <- files) {
+		lines += [line | line <- sanitizeLines(readFileLines(file), []), !isEmpty(line), !isComment(line)];
+	}
+	return size(lines);
+}
