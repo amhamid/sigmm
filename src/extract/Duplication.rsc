@@ -11,7 +11,6 @@ import util::Sanitizer;
 int countTotalDuplication(list[Declaration] methodAsts) {
 	int result = 0;
 	lrel[loc, list[str], lrel[loc, list[str]]] duplicatedMethods = findDuplication(methodAsts);
-	iprintln(duplicatedMethods);
 	for(duplicatedMethod <- duplicatedMethods) {
 		list[str] firstClone = duplicatedMethod[1];
 		lrel[loc, list[str]] theRestOfClones = duplicatedMethod[2];
