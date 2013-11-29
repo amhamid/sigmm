@@ -9,31 +9,45 @@ import String;
 import util::Sanitizer;
 
 int countTotalDuplication(list[Declaration] methodAsts) {
-	list[list[str]] allMethodLines = [];
+	lrel[loc, list[str]] duplicatedMethods = findDuplication(methodAsts);
+	return (0 | it + size(duplicatedMethod[1]) | duplicatedMethod <- duplicatedMethods);
+}
+
+lrel[loc, list[str]] findDuplication(list[Declaration] methodAsts) {
+	lrel[loc, list[str]] allMethodLines = [];
 
 	for(methodAst <- methodAsts) {
 		if(/method(m,_,_,_) := methodAst@typ) {
 			list[str] lines = [line | line <- sanitizeLines(readFileLines(m), ["\t", "{", "}"]), !isEmpty(line), !isComment(line)];
 			if(size(lines) > 5) {
-				allMethodLines += [lines];	
+				allMethodLines += [<m, lines>];	
 			}
 		}
 	}
 	
-	return (0 | it + size(duplicateLines) | duplicateLines <- getDuplicatedLines(allMethodLines));
+	return getDuplicatedLines(allMethodLines);
 }
 
-private list[list[str]] getDuplicatedLines(list[list[str]] allMethodLines) {
-	list[list[str]] totalDuplicateLines = [];
+// list of tuple of loc and its duplicated lines
+private lrel[loc, list[str]] getDuplicatedLines(lrel[loc, list[str]] allMethodLines) {
+	lrel[loc, list[str]] totalDuplicateLines = [];
 	
 	if(size(allMethodLines) <= 1) {
 		return [];
 	} else {
-		list[str] oneMethodLines = head(allMethodLines);
+		tuple[loc, list[str]] oneMethod = head(allMethodLines);
+		lrel[loc, list[str]] theRestMethods = tail(allMethodLines);
+		
+		loc oneMethodLoc = oneMethod[0];
+		list[str] oneMethodLines = oneMethod[1];
 		oneMethodLines += "EOM"; // end of method (to identify the end of a method)
-		list[list[str]] theRestMethodLinesWithoutDuplicateFromFirstMethod = [];
+		
+		lrel[loc, list[str]] theRestMethodLinesWithoutDuplicateFromFirstMethod = [];
 
-		for(nextMethodLines <- tail(allMethodLines)) {
+		for(nextMethod <- theRestMethods) {
+			loc nextMethodLoc = nextMethod[0];
+			list[str] nextMethodLines = nextMethod[1];
+			
 			list[str] duplicateLinesInOneMethod = [];
 			list[str] duplicateLinesInOneBlock = [];
 			
@@ -41,7 +55,7 @@ private list[list[str]] getDuplicatedLines(list[list[str]] allMethodLines) {
 				if(oneMethodLine in nextMethodLines && [*_, duplicateLinesInOneBlock, oneMethodLine, *_] := nextMethodLines) {
 					duplicateLinesInOneBlock += oneMethodLine;
 				} else if(size(duplicateLinesInOneBlock) > 5) {
-					totalDuplicateLines += [duplicateLinesInOneBlock];
+					totalDuplicateLines += [<nextMethodLoc, duplicateLinesInOneBlock>];
 					duplicateLinesInOneMethod += duplicateLinesInOneBlock;
 					duplicateLinesInOneBlock = [];
 				} else {
@@ -50,14 +64,16 @@ private list[list[str]] getDuplicatedLines(list[list[str]] allMethodLines) {
 			}
 			
 			// remove the duplicate found from the 'otherMethodLines'
-			theRestMethodLinesWithoutDuplicateFromFirstMethod += [ nextMethodLines - duplicateLinesInOneMethod ];
+			theRestMethodLinesWithoutDuplicateFromFirstMethod += [<nextMethodLoc, (nextMethodLines - duplicateLinesInOneMethod) >];
 		}
 		
 		if(size(totalDuplicateLines) > 0) {
 			// including the number of duplicate lines from the first method itself 
 			//(e.g. 4 methods with 5 lines duplicate on all of them then the number of duplicate 
 			//is 15 lines from 3 methods + 5 from the first methods = 20 total of duplicate lines)
-			totalDuplicateLines = totalDuplicateLines + [totalDuplicateLines[0]];
+			tuple[loc, list[str]] firstDuplication = head(totalDuplicateLines);
+			list[str] firstDuplicationLines = firstDuplication[1];	
+			totalDuplicateLines = totalDuplicateLines + [<oneMethodLoc, firstDuplicationLines>];
 		}
 		
 		return totalDuplicateLines + getDuplicatedLines(theRestMethodLinesWithoutDuplicateFromFirstMethod);
