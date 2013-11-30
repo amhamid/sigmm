@@ -23,18 +23,18 @@ void generateDuplicationTree(lrel[loc, list[str], lrel[loc, list[str]]] duplicat
 			list[str] cloneLines = clone[1];
 			str cloneLine = ("<head(cloneLines)>" | it + "<line>\n" | line <- tail(cloneLines));
 			str methodName = getMethodName(clonePath);
-			children += ellipse(text(methodName), popup(cloneLine), fillColor("red"));
+			children += box(text(methodName), popup(cloneLine), fillColor("red"), resizable(false));
 		}
 		
 		str methodName = getMethodName(originalPath);
-		trees += tree(box(text(methodName), popup(originalLine), fillColor("green")), children, std(size(20)), std(gap(20)));
+		trees += tree(box(text(methodName), popup(originalLine), fillColor("green"), resizable(false)), children, std(gap(20)));
 	}
 	
 	render("Code Duplication Tree", pack(trees, std(gap(50))));
 }
 
 private FProperty popup(str message) {
-	return mouseOver(box(text(message), grow(1.2)));
+	return mouseOver(box(text(message), resizable(false), right()));
 }
 
 // just take the method name without the argument(s) from the path
