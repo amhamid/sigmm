@@ -51,6 +51,7 @@ private lrel[loc, list[str], lrel[loc, list[str]]] getDuplicatedLines(lrel[loc, 
 		oneMethodLines += "EOM"; // end of method (to identify the end of a method)
 		
 		lrel[loc, list[str]] theRestMethodLinesWithoutDuplicateFromFirstMethod = [];
+		str separator = "\n\t.....\n";
 
 		for(nextMethod <- theRestMethods) {
 			loc nextMethodLoc = nextMethod[0];
@@ -63,15 +64,18 @@ private lrel[loc, list[str], lrel[loc, list[str]]] getDuplicatedLines(lrel[loc, 
 				if(oneMethodLine in nextMethodLines && [*_, duplicateLinesInOneBlock, oneMethodLine, *_] := nextMethodLines) {
 					duplicateLinesInOneBlock += oneMethodLine;
 				} else if(size(duplicateLinesInOneBlock) > 5) {
-					totalDuplicateLines += [<nextMethodLoc, duplicateLinesInOneBlock>];
-					duplicateLinesInOneMethod += duplicateLinesInOneBlock;
+					duplicateLinesInOneMethod += duplicateLinesInOneBlock + separator;
 					if([*_, duplicateLinesInOneBlock, *_] !:= uniqueDuplicateLines) {
-						uniqueDuplicateLines += duplicateLinesInOneBlock + "\n  ----  \n";					
+						uniqueDuplicateLines += duplicateLinesInOneBlock + separator;					
 					}
 					duplicateLinesInOneBlock = [];
 				} else {
 					duplicateLinesInOneBlock = [];
 				}		
+			}
+			
+			if(!isEmpty(duplicateLinesInOneMethod)) {
+				totalDuplicateLines += [<nextMethodLoc, duplicateLinesInOneMethod>];
 			}
 			
 			// remove the duplicate found from the 'otherMethodLines'

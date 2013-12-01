@@ -7,18 +7,17 @@ import String;
 import List;
 
 // TODO fix clicking to method loc
-// TODO group the same method together
-// TODO show which package in the popup (fully qualified method loc path)
 // TODO add legends
 
 void generateDuplicationTree(lrel[loc, list[str], lrel[loc, list[str]]] duplicationMethods) {
 	list[Figure] trees = [];
+	str separator = "\n\n\t.....\n\n";
 	
 	for(duplicationMethod <- duplicationMethods) {
 		loc originalLoc = duplicationMethod[0];
 		str originalPath = originalLoc.path;
 		list[str] originalLines = duplicationMethod[1];
-		str originalLine = ("<head(originalLines)>" | it + "<line>\n" | line <- tail(originalLines));
+		str originalLine = ("<originalPath> <separator> <head(originalLines)>" | it + "<line>\n" | line <- tail(originalLines));
 		lrel[loc, list[str]] clones = duplicationMethod[2];
 		
 		list[Figure] children = [];
@@ -26,7 +25,7 @@ void generateDuplicationTree(lrel[loc, list[str], lrel[loc, list[str]]] duplicat
 			loc cloneLoc = clone[0];
 			str clonePath = cloneLoc.path;
 			list[str] cloneLines = clone[1];
-			str cloneLine = ("<head(cloneLines)>" | it + "<line>\n" | line <- tail(cloneLines));
+			str cloneLine = ("<clonePath> <separator> <head(cloneLines)>" | it + "<line>\n" | line <- tail(cloneLines));
 			str methodName = getMethodName(clonePath);
 			children += box(text(methodName), popup(cloneLine), fillColor("red"), resizable(false));
 		}
@@ -39,7 +38,7 @@ void generateDuplicationTree(lrel[loc, list[str], lrel[loc, list[str]]] duplicat
 }
 
 private FProperty popup(str message) {
-	return mouseOver(box(text(message), resizable(false), right()));
+	return mouseOver(box(text(message), resizable(false), right(), bottom()));
 }
 
 // just take the method name without the argument(s) from the path
