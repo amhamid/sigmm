@@ -9,12 +9,13 @@ import IO;
 
 void generateCyclomaticComplexityHeatMap(lrel[loc, int, int] cyclomaticComplexities) {
 	list[Figure] boxes = [];
+	str separator = "\n\n\t.....\n\n";
 	
 	for(cyclomaticComplexity <- cyclomaticComplexities) {
 		loc methodLoc = cyclomaticComplexity[0];
 		int complexity = cyclomaticComplexity[1];
 		list[str] lines = readFileLines(methodLoc); 
-		str line = ("<head(lines)>" | it + "<line>\n" | line <- tail(lines));
+		str line = ("<methodLoc.path> <separator> <head(lines)>" | it + "<line>\n" | line <- tail(lines));
 		
 		boxes += createBox(complexity, line);
 	}
