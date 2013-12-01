@@ -5,9 +5,9 @@ import lang::java::jdt::m3::AST;
 
 import extract::UnitSize;
 
-// calculate complexity per method and return a list of tuple with information <complexity, number of loc>
-list[tuple[int, int]] cyclomaticComplexityPerUnit(list[Declaration] methodAsts) {
-	list[tuple[int, int]] complexityUnits = []; 
+// calculate complexity per method and return a list of tuple with information <loc, complexity, number of loc>
+lrel[loc, int, int] cyclomaticComplexityPerUnit(list[Declaration] methodAsts) {
+	lrel[loc, int, int] complexityUnits = []; 
 	 
 	for(ast <- methodAsts) {
 		int result = 1;
@@ -23,9 +23,9 @@ list[tuple[int, int]] cyclomaticComplexityPerUnit(list[Declaration] methodAsts) 
 			case \catch(_,_) : result += 1;			
 		}
 		
-		if(result > 1 && (/method(m,_,_,_) := ast@typ)) {
+		if(/method(m,_,_,_) := ast@typ) {
 			methodLoc = unitSize(m);
-			complexityUnits += <result, methodLoc>;
+			complexityUnits += <m, result, methodLoc>;
 		}				
 	}
 	

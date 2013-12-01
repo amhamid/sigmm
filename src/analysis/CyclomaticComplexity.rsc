@@ -10,17 +10,17 @@ import extract::CyclomaticComplexity;
 // return a tuple with [rating, mediumRiskPercentage, highRiskPercentage, veryHighRiskPercentage]
 tuple[str, real, real, real] cyclomaticComplexityRating(list[Declaration] methodAsts, int totalProductionLoc) {
 	result = "";
-	list[tuple[int,int]] complexityUnits = cyclomaticComplexityPerUnit(methodAsts);
+	lrel[loc,int,int] complexityUnits = cyclomaticComplexityPerUnit(methodAsts);
 	
 	// filtering the risk into moderate, high and very high risk
-	list[tuple[int,int]] moderateRisk = [<x, y> | <x,y> <- complexityUnits, x > 10, x <= 20];
-	list[tuple[int,int]] highRisk = [<x, y> | <x,y> <- complexityUnits, x > 20, x <= 50];
-	list[tuple[int,int]] veryHighRisk = [<x, y> | <x,y> <- complexityUnits, x > 50];
+	lrel[loc,int,int] moderateRisk = [<l,x,y> | <l,x,y> <- complexityUnits, x > 10, x <= 20];
+	lrel[loc,int,int] highRisk = [<l,x,y> | <l,x,y> <- complexityUnits, x > 20, x <= 50];
+	lrel[loc,int,int] veryHighRisk = [<l,x,y> | <l,x,y> <- complexityUnits, x > 50];
 	
 	// calculating total line of code per risk
-	int moderateRiskTotalLoc = (0 | it + y | <x,y> <- moderateRisk); 
-	int highRiskTotalLoc = (0 | it + y | <x,y> <- highRisk);
-	int veryHighRiskTotalLoc = (0 | it + y | <x,y> <- veryHighRisk);
+	int moderateRiskTotalLoc = (0 | it + y | <l,x,y> <- moderateRisk); 
+	int highRiskTotalLoc = (0 | it + y | <l,x,y> <- highRisk);
+	int veryHighRiskTotalLoc = (0 | it + y | <l,x,y> <- veryHighRisk);
 
 	// calculating percentage of the risks
 	real moderateRiskPercentage = toReal(moderateRiskTotalLoc)/totalProductionLoc * 100;

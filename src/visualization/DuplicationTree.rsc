@@ -6,6 +6,11 @@ import vis::KeySym;
 import String;
 import List;
 
+// TODO fix clicking to method loc
+// TODO group the same method together
+// TODO show which package in the popup (fully qualified method loc path)
+// TODO add legends
+
 void generateDuplicationTree(lrel[loc, list[str], lrel[loc, list[str]]] duplicationMethods) {
 	list[Figure] trees = [];
 	
@@ -42,8 +47,6 @@ private str getMethodName(str methodFullPath) {
 	return substring(methodFullPath, findLast(methodFullPath, "/") + 1, findFirst(methodFullPath, "("));
 }
 
-
-// TODO fix clicking to method loc !!
 private FProperty click() {
 	return onMouseDown(
 		bool (int butnr, map[KeyModifier,bool] modifiers) {
