@@ -39,11 +39,11 @@ private Figure createBox(loc methodLoc, int complexity) {
 	if(complexity <= 10) {
 		shape = box(fillColor("green"), resizable(false), size(width,height));	
 	} else if(complexity > 10 && complexity <= 20) {
-		shape = box(fillColor("yellow"), popup(line), openMethodOnClick(methodLoc), resizable(false), size(width,height));	
+		shape = box(text("<complexity>"), fillColor("yellow"), popup(line), openMethodOnClick(methodLoc), resizable(false), size(width,height));	
 	} else if(complexity > 20 && complexity <= 50) {
-		shape = box(fillColor("orange"), popup(line), openMethodOnClick(methodLoc), resizable(false), size(width,height));	
+		shape = box(text("<complexity>"), fillColor("orange"), popup(line), openMethodOnClick(methodLoc), resizable(false), size(width,height));	
 	} else {
-		shape = box(fillColor("red"), popup(line), openMethodOnClick(methodLoc), resizable(false), size(width,height));	
+		shape = box(text("<complexity>"), fillColor("red"), popup(line), openMethodOnClick(methodLoc), resizable(false), size(width,height));	
 	}
 	
 	return shape;
