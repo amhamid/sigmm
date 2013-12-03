@@ -33,3 +33,28 @@ map[str,tuple[list[loc], list[Declaration]]] readProjectStructure(loc project) {
 	
 	return packages;
 }
+
+// list of packages and its files
+map[str,list[loc]] getPackages(loc project) {
+	// create M3 model from the project
+	M3 model = createM3FromEclipseProject(project);
+
+	// filter out any files that are not production code (such as junit, samples, generated code, etc.)
+	list[loc] productionSourceFiles = [file | file <- files(model), isProductionSourceFile(file.path)];
+	
+	// map of path -> list of file and list of method asts
+	map[str,list[loc]] packages = ();
+	
+	// group files and method asts into each package path 
+	for(loc file <- productionSourceFiles) {
+		str path = substring(file.path, 0, findLast(file.path, "/"));
+		if(path in packages) {
+			list[loc] files = packages[path] + file;
+			packages += (path: files);
+		} else {
+			packages += (path: [file]);
+		}		
+	}
+	
+	return packages;
+}
