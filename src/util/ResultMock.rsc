@@ -2215,7 +2215,7 @@ public map[str, list[loc]] getSmallSqlStructure() {
 	);
 }
 
-map[str, list[loc]] getHsqldbProjectStructure() {
+map[str, list[loc]] getHsqldbStructure() {
 	return (
 	  "/src/org/hsqldb/cmdline/sqltool":[
 	    |java+compilationUnit:///src/org/hsqldb/cmdline/sqltool/TokenSource.java|,

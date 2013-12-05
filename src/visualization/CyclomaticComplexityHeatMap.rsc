@@ -12,24 +12,39 @@ import util::Visualization;
 import extract::CyclomaticComplexity;
 
 // TODO:
-// 1. add overview (package level with chart inside it)
-// 2. add relation with duplication (by arrow) 
-// 3. add relation with volume/unit size (by box size)
-// 4. add legends
+// 1. add relation with duplication to add insight about priority 
+// 2. add legends
 
+// [args]: map of package name with its list of files
 void getPackageOverview(map[str, list[loc]] projectStructure) {
 	list[str] packages = [package | package <- projectStructure];
 	
 	list[Figure] packageBoxes = [];
 	for(package <- packages) {
 		str packageName = substring(package, findLast(package, "/")+1);
-		Figure packageBox = box(text(packageName, top()), size(100, 100));
-		packageBoxes += overlay([packageBox, createChart(projectStructure[package])]);	
+		Figure packageBox = box(text("Package: <packageName>", top(), right()), size(50, 50));
+		Figure infoIcon = box(top(), left(), click("Package: <packageName>", projectStructure[package]), size(15, 15), resizable(false));
+		packageBoxes += overlay([packageBox, infoIcon, createChart(projectStructure[package])]);	
 	}
 
-	render(pack(packageBoxes, std(gap(50))));
+	render("CC Package Level", pack(packageBoxes, std(gap(50))));
 }
 
+// [args]: title of the window and list of files
+private FProperty click(str title, list[loc] files) {
+	return onMouseDown(
+		bool (int butnr, map[KeyModifier,bool] modifiers) {
+			lrel[loc, list[Declaration]] declarations = [];
+			for(file <- files) {
+				declarations += <file, [ d | /Declaration d := createAstFromFile(file, true), d is method]>;		
+			}
+			render(title, heatMap(declarations));
+			return true;
+		}
+	);
+}
+
+// [args]: title of the window and list of tuple of file location and its method ASTs
 private FProperty click(str title, lrel[loc, list[Declaration]] declarations) {
 	return onMouseDown(
 		bool (int butnr, map[KeyModifier,bool] modifiers) {
@@ -39,20 +54,48 @@ private FProperty click(str title, lrel[loc, list[Declaration]] declarations) {
 	);
 }
 
+// [args]: title of the window and complexity (list of tuple of method location, its complexity and its unit size) 
+private FProperty click(str title, lrel[loc, int, int] complexityUnits, str color) {
+	return onMouseDown(
+		bool (int butnr, map[KeyModifier,bool] modifiers) {
+			render(title, heatMap(complexityUnits, color));
+			return true;
+		}
+	);
+}
+
+// create heat map (list of tuple of file location and its method ASTs)
 private Figure heatMap(lrel[loc, list[Declaration]] declarations) {
 	list[Figure] fileBoxes = [];	
 	for(declaration <- declarations) {
 		loc file = declaration[0];
 		list[Declaration] methodAsts = declaration[1];
 		lrel[loc, int, int] complexityUnits = cyclomaticComplexityPerUnit(methodAsts);
-		str fileName = substring(file.path, findLast(file.path, "/")+1);
-		Figure fileBox = box(text(fileName, top()), size(20, 20), resizable(false));
+		lrel[loc,int,int] moderateRisk = [<l,x,y> | <l,x,y> <- complexityUnits, x > 10, x <= 20];
+		lrel[loc,int,int] highRisk = [<l,x,y> | <l,x,y> <- complexityUnits, x > 20, x <= 50];
+		lrel[loc,int,int] veryHighRisk = [<l,x,y> | <l,x,y> <- complexityUnits, x > 50];
+		str filename = substring(file.path, findLast(file.path, "/")+1);
+		Figure fileBox = box(text(filename, top(), right()), size(20, 20));
 		fileBoxes += overlay([fileBox, createChart(complexityUnits)]);
 	}
 	
 	return pack(fileBoxes, std(gap(50)));	
 }
 
+// create heat map from a given complexity (list of tuple of method location, its complexity and its unit size)
+private Figure heatMap(lrel[loc, int, int] complexityUnits, str color) {
+	list[Figure] methodBoxes = [];
+	for(complexityUnit <- complexityUnits) {
+		loc methodLoc = complexityUnit[0];
+		int complexity = complexityUnit[1];
+		int unitSize = complexityUnit[2];
+		methodBoxes += box(text("<getMethodName(methodLoc.path)>", top()), openMethodOnClick(methodLoc), size(unitSize, complexity), fillColor(color), resizable(false));
+	}
+	
+	return pack(methodBoxes, std(gap(50)));	
+}
+
+// create a bar chart with list of tuple of method location, its complexity and its unit size
 private Figure createChart(lrel[loc, int, int] complexityUnits) {
 	list[Figure] boxes = [];
 	for(cyclomaticComplexity <- complexityUnits) {
@@ -64,6 +107,7 @@ private Figure createChart(lrel[loc, int, int] complexityUnits) {
 	return pack(boxes);
 }
 
+// create a bar chart with list of files
 private Figure createChart(list[loc] files) {
 	int width = 30;
 	lrel[loc, list[Declaration]] declarations = [];
@@ -77,13 +121,14 @@ private Figure createChart(list[loc] files) {
 	lrel[loc,int,int] highRisk = [<l,x,y> | <l,x,y> <- complexityUnits, x > 20, x <= 50];
 	lrel[loc,int,int] veryHighRisk = [<l,x,y> | <l,x,y> <- complexityUnits, x > 50];
 
-	Figure yellowBox = box(size(width, size(moderateRisk)*5), click("CC Moderate Risk", declarations), fillColor("yellow"));
-	Figure orangeBox = box(size(width, size(highRisk)*5), click("CC High Risk", declarations), fillColor("orange"));
-	Figure redBox = box(size(width, size(veryHighRisk)*5), click("CC Very High Risk", declarations), fillColor("red"));
+	Figure yellowBox = box(size(width, size(moderateRisk)*5), click("CC Moderate Risk", moderateRisk, "yellow"), fillColor("yellow"));
+	Figure orangeBox = box(size(width, size(highRisk)*5), click("CC High Risk", highRisk, "orange"), fillColor("orange"));
+	Figure redBox = box(size(width, size(veryHighRisk)*5), click("CC Very High Risk", veryHighRisk, "red"), fillColor("red"));
 
 	return hcat([yellowBox,orangeBox,redBox], std(center()), std(bottom()), std(resizable(false)), std(gap(5)));
 }
 
+// create box (green, yellow, orange or red) that is depend on complexity
 private Figure createBox(loc methodLoc, int complexity) {
 	int width = 30;
 	int height = 30;
@@ -100,4 +145,9 @@ private Figure createBox(loc methodLoc, int complexity) {
 	}
 	
 	return shape;
+}
+
+// just take the method name without the argument(s) from the path
+private str getMethodName(str methodFullPath) {
+	return substring(methodFullPath, findLast(methodFullPath, "/") + 1, findFirst(methodFullPath, "("));
 }
