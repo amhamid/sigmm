@@ -25,6 +25,16 @@ list[int] unitSizePerUnit(list[Declaration] methodAsts) {
 	return totalMethodLines;
 }
 
+// get a collection of unit size in a file
+map[loc, int] countSizePerUnit(loc file) {
+	list[loc] units = [ *[ m | /Declaration d := createAstFromFile(file, true), d is method, /method(m,_,_,_) := d@typ]];
+	map[loc, int] sizePerUnit = (); 
+	for(unit <- units) {
+		sizePerUnit += (unit : unitSize(unit));
+	}
+	return sizePerUnit;
+}
+
 // calculate a unit size
 int unitSize(loc methodLoc)	{
 	list[str] rawLines = sanitizeLines(readFileLines(methodLoc), ["\t"]);
