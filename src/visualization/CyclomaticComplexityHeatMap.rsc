@@ -9,22 +9,61 @@ import IO;
 import String;
 
 import util::Visualization;
+import util::ResultMock;
 import extract::CyclomaticComplexity;
+import visualization::DuplicationTree;
+import visualization::VolumeUnitBar;
 
 // TODO:
 // 1. add relation with duplication to add insight about priority 
 // 2. add legends
 
+// helper method for generating HSQLDB package overview (demo purpose only)
+void getHsqldbPackageOverview() {
+	map[str,list[loc]] projectStructure = getHsqldbStructure();
+	lrel[loc, list[str], lrel[loc, list[str]]] duplicationMethods = getHsqldbDuplication();
+	getPackageOverview(projectStructure, duplicationMethods);	
+}
+
+// helper method for generating SmallSQL package overview (demo purpose only)
+void getSmallSqlPackageOverview() {
+	map[str,list[loc]] projectStructure = getSmallSqlStructure();
+	lrel[loc, list[str], lrel[loc, list[str]]] duplicationMethods = getSmallSqlDuplication();
+	getPackageOverview(projectStructure, duplicationMethods);	
+}
+
 // [args]: map of package name with its list of files
-void getPackageOverview(map[str, list[loc]] projectStructure) {
+private void getPackageOverview(map[str, list[loc]] projectStructure, lrel[loc, list[str], lrel[loc, list[str]]] duplicateMethods) {
 	list[str] packages = [package | package <- projectStructure];
 	
 	list[Figure] packageBoxes = [];
 	for(package <- packages) {
 		str packageName = substring(package, findLast(package, "/")+1);
+		list[loc] files = projectStructure[package];
+		
+		lrel[loc, lrel[loc,int]] fileMethods = [];
+		list[Declaration] allMethodAsts = [];
+		lrel[loc, int, int] allComplexities = [];
+		 
+		for(file <- files) {
+			list[Declaration] methodAsts = [ d | /Declaration d := createAstFromFile(file, true), d is method];
+			allMethodAsts += methodAsts;
+			lrel[loc, int, int] complexities = [cc | cc <- cyclomaticComplexityPerUnit(methodAsts), cc[1] > 10];
+			allComplexities += complexities;
+			if(!isEmpty(complexities)) {
+				fileMethods += [<file, [<cc[0], cc[1]> | cc <- complexities]>];
+			}	
+		}
+		
 		Figure packageBox = box(text("Package: <packageName>", top(), right()), size(50, 50));
-		Figure infoIcon = box(top(), left(), click("Package: <packageName>", projectStructure[package]), size(15, 15), resizable(false));
-		packageBoxes += overlay([packageBox, infoIcon, createChart(projectStructure[package])]);	
+		Figure infoIcon = box(top(), left(), click("Package: <packageName>", fileMethods), size(15, 15), resizable(false));
+		lrel[loc, list[str], lrel[loc, list[str]]] duplicate = subset(allComplexities, duplicateMethods);
+		if(isEmpty(duplicate)) {
+			packageBoxes += overlay([packageBox, infoIcon, createChart(files)]);
+		} else {
+			Figure duplicateIcon = box(bottom(), right(), fillColor("blue"), click(duplicate), size(15, 15), resizable(false));	
+			packageBoxes += overlay([packageBox, infoIcon, duplicateIcon, createChart(files)]);
+		}
 	}
 
 	render("CC Package Level", pack(packageBoxes, std(gap(50))));
@@ -39,6 +78,15 @@ private FProperty click(str title, list[loc] files) {
 				declarations += <file, [ d | /Declaration d := createAstFromFile(file, true), d is method]>;		
 			}
 			render(title, heatMap(declarations));
+			return true;
+		}
+	);
+}
+
+private FProperty click(str title, lrel[loc, lrel[loc,int]] volume) {
+	return onMouseDown(
+		bool (int butnr, map[KeyModifier,bool] modifiers) {
+			render(title, generateVolumeAndCcBar(volume));
 			return true;
 		}
 	);

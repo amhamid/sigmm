@@ -5,11 +5,14 @@ import vis::Render;
 import vis::KeySym;
 import String;
 import List;
+import lang::java::jdt::m3::Core;
+import lang::java::jdt::m3::AST;
 
 import util::Visualization;
 
 // TODO add legends
 
+// root duplicate method loc with its lines and its clones with method loc and lines
 void generateDuplicationTree(lrel[loc, list[str], lrel[loc, list[str]]] duplicationMethods) {
 	list[Figure] trees = [];
 	str separator = "\n\n\t.....\n\n";
@@ -36,6 +39,40 @@ void generateDuplicationTree(lrel[loc, list[str], lrel[loc, list[str]]] duplicat
 	}
 	
 	render("Code Duplication Tree", pack(trees, std(gap(50))));
+}
+
+// [args]: title of the window and list of files
+FProperty click(lrel[loc, list[str], lrel[loc, list[str]]] duplicationMethods) {
+	return onMouseDown(
+		bool (int butnr, map[KeyModifier,bool] modifiers) {
+			generateDuplicationTree(duplicationMethods);
+			return true;
+		}
+	);
+}
+
+// returns the duplication from a given list of files (from the total duplication in a project)
+lrel[loc, list[str], lrel[loc, list[str]]] subset(lrel[loc, int, int] complexities, lrel[loc, list[str], lrel[loc, list[str]]] duplicateMethods) {
+	list[loc] methodLocs = [complexity[0] | complexity <- complexities];
+	
+	lrel[loc, list[str], lrel[loc, list[str]]] result = [];	
+	for(duplicateMethod <- duplicateMethods) {
+		loc originalMethod = duplicateMethod[0];
+		if(originalMethod in methodLocs) {
+			result += duplicateMethod;		
+		} else {
+			lrel[loc, list[str]] clones = duplicateMethod[2];
+			for(clone <- clones) {
+				loc cloneMethod = clone[0];
+				if(cloneMethod in methodLocs) {
+					result += duplicateMethod;
+					break;				
+				}			
+			}
+		}	
+	}
+	
+	return result;
 }
 
 // just take the method name without the argument(s) from the path
