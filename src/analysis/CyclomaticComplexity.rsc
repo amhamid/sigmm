@@ -31,6 +31,20 @@ tuple[str, real, real, real] cyclomaticComplexityRating(list[Declaration] method
 	return <rating, moderateRiskPercentage, highRiskPercentage, veryHighRiskPercentage>;
 }
 
+//rate cyclomatic complexity by color
+str cycloComplexityColorRating(int complexity) {
+	str colorRate = "Green";
+	
+	if(complexity > 10 && complexity <= 20) {
+		colorRate = "Yellow";	
+	} else if(complexity > 20 && complexity <= 50) {
+		colorRate = "Orange";	
+	} else if(complexity > 50){
+		colorRate = "Red";	
+	}
+	
+	return colorRate;
+}
 private str getRating(real moderateRiskPercentage, real highRiskPercentage, real veryHighRiskPercentage) {
 	str result = "";
 		

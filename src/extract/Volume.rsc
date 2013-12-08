@@ -28,6 +28,7 @@ int countTotalEmptyLoc(M3 model, list[loc] files)
 // calculate total of production code volume from a given list of files
 int countTotalProductionLoc(list[loc] files) {
 	list[str] lines = [];
+	
 	for(loc file <- files) {
 		lines += [line | line <- sanitizeLines(readFileLines(file), []), !isEmpty(line), !isComment(line)];
 	}
@@ -35,13 +36,14 @@ int countTotalProductionLoc(list[loc] files) {
 }
 
 // map lines of code with both file and methods in it
-list[tuple[loc, int, map[loc, int]]] countFileAndMethodLoc(list[loc] files) {
-	list[tuple[loc, int, map[loc, int]]] cfaml = [];
+list[tuple[loc, int, map[loc, int], int]] countFileAndMethodLoc(list[loc] files) {
+	list[tuple[loc, int, map[loc, int], int]] cfaml = [];
 	list[str] fileLoc = [];
-
+	
 	for(loc file <- files) {		
 		fileLoc += [line | line <- sanitizeLines(readFileLines(file), []), !isEmpty(line), !isComment(line)];
-		cfaml += <file, size(fileLoc), countSizePerUnit(file)>;
+		methodAsts = [ *[ d | /Declaration d := createAstFromFile(file, true), d is method]];
+		cfaml += <file, size(fileLoc), countSizePerUnit(file), totalUnitSize(methodAsts)>;
 	}
 	return cfaml;
 }

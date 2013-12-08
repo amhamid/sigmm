@@ -30,6 +30,23 @@ tuple[str, real, real, real] unitSizeRating(list[Declaration] methodAsts, int to
 	return <rating, moderateRiskPercentage, highRiskPercentage, veryHighRiskPercentage>; 
 }
 
+//Rate unit size by color
+str unitSizeColorRating(int sizePerUnit) {
+	str colorRate = "Green";
+
+	if(sizePerUnit > 20 && sizePerUnit <= 50) {
+		colorRate = "Yellow";
+	}
+	else if(sizePerUnit > 50 && sizePerUnit <= 100) {
+		colorRate = "Orange";
+	}
+	else if(sizePerUnit > 100) {
+		colorRate = "Red";
+	}
+	
+	return colorRate;
+}
+
 private str getRating(real moderateRiskPercentage, real highRiskPercentage, real veryHighRiskPercentage) {
 	str result = "";
 		
