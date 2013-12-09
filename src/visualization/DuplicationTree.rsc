@@ -10,8 +10,6 @@ import lang::java::jdt::m3::AST;
 
 import util::Visualization;
 
-// TODO add legends
-
 // root duplicate method loc with its lines and its clones with method loc and lines
 void generateDuplicationTree(lrel[loc, list[str], lrel[loc, list[str]]] duplicationMethods) {
 	list[Figure] trees = [];

@@ -14,9 +14,6 @@ import extract::CyclomaticComplexity;
 import visualization::DuplicationTree;
 import visualization::VolumeUnitBar;
 
-// TODO:
-// 1. add legends
-
 // helper method for generating HSQLDB package overview (demo purpose only)
 void getHsqldbPackageOverview() {
 	map[str,list[loc]] projectStructure = getHsqldbStructure();
@@ -47,7 +44,7 @@ private void getPackageOverview(map[str, list[loc]] projectStructure, lrel[loc, 
 		for(file <- files) {
 			list[Declaration] methodAsts = [ d | /Declaration d := createAstFromFile(file, true), d is method];
 			allMethodAsts += methodAsts;
-			lrel[loc, int, int] complexities = [cc | cc <- cyclomaticComplexityPerUnit(methodAsts), cc[1] > 10];
+			lrel[loc, int, int] complexities = [cc | cc <- cyclomaticComplexityPerUnit(methodAsts), cc[1] > 40];
 			allComplexities += complexities;
 			if(!isEmpty(complexities)) {
 				fileMethods += [<file, [<cc[0], cc[1]> | cc <- complexities]>];
