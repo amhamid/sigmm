@@ -15,8 +15,7 @@ import visualization::DuplicationTree;
 import visualization::VolumeUnitBar;
 
 // TODO:
-// 1. add relation with duplication to add insight about priority 
-// 2. add legends
+// 1. add legends
 
 // helper method for generating HSQLDB package overview (demo purpose only)
 void getHsqldbPackageOverview() {

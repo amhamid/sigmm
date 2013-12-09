@@ -50,19 +50,20 @@ Figure generateFileVolumeBar(list[tuple[loc, int, map[loc, int], int]] collectio
 }
 
 //generate volume and cyclomatic complexity color per unit in file
-Figure generateVolumeAndCcBar(lrel[loc, lrel[loc, int]] fileUnitCc) {
+Figure generateVolumeAndCcBar(lrel[loc, lrel[loc, int]] fileUnits) {
 	list[Figure] boxes = [];
 	
-	for(fuc <- fileUnitCc) {
-		boxes += generateUnitVolumeCcBox(fuc[1]);
+	for(fileUnit <- fileUnits) {
+		str filename = fileUnit[0].file;
+		boxes += generateUnitVolumeCcBox(filename, fileUnit[1]);
 	}	
 	return pack(boxes, gap(50));
 }
 
 //generate size and cyclomatic color per unit
-Figure generateUnitVolumeCcBox(lrel[loc, int] unitAndCc) {
+Figure generateUnitVolumeCcBox(str filename, lrel[loc, int] unitAndCc) {
 	list[Figure] boxes = [box(size(50, unitSize(uac.unit)), openMethodOnClick(uac.unit), fillColor(cycloComplexityColorRating(uac.cylomaticComplexity)), resizable(false)) | tuple[loc unit, int cylomaticComplexity] uac <- unitAndCc];
-	return vcat(boxes);
+	return vcat(boxes, popup(filename));
 }
 
 // generate box figures for unit size
@@ -83,6 +84,6 @@ tuple[M3, list[loc]] getModelAndFiles() {
 	return <model, productionSourceFiles>;
 }
 
-
-
-
+private FProperty popup(str message) {
+	return mouseOver(box(text(message), resizable(false)));
+}
